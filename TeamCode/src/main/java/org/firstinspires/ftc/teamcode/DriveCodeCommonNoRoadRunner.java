@@ -72,9 +72,9 @@ public class DriveCodeCommonNoRoadRunner extends LinearOpMode {
     public void intake(){
         HardwareMapTeam drive = new HardwareMapTeam(hardwareMap);
         if (a1.isToggled()){
-           drive.intake.setPower(-1);
+           drive.intake.setPower(-0.75);
         }else if (lb1.isPressed()){
-            drive.intake.setPower(1);
+            drive.intake.setPower(0.75);
         } else{
             drive.intake.setPower(0);
         }
@@ -85,6 +85,7 @@ public class DriveCodeCommonNoRoadRunner extends LinearOpMode {
         drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         drive.leftLift.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
         drive.rightLift.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+
 //        drive.leftLift.setPower(1);
 //        drive.rightLift.setPower(1);
 //        drive.leftLift.setTargetPosition(liftTargetPos[rb2.getCycle()]);
