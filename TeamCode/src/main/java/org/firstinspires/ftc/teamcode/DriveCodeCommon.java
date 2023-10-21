@@ -16,7 +16,7 @@ public class DriveCodeCommon extends LinearOpMode {
     public static double latchOpen2 =1;
 //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74,0.79,0.9};
-    public static double flipperscore = 0.52;
+    public static double flipperscore = 0.50;
     public static double flipperintake = 1;
     GamepadEx a1 = new GamepadEx();
     GamepadEx b1 = new GamepadEx(3,true);
