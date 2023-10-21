@@ -99,7 +99,7 @@ public final class MecanumDrive {
 
     public final VoltageSensor voltageSensor;
 
-    public final IMU imu;
+    public final IMU imu = null;
 
     public final Localizer localizer;
     public Pose2d pose;
@@ -218,15 +218,10 @@ public final class MecanumDrive {
 //        backRight .setDirection(DcMotorSimple.Direction.FORWARD);
 //        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
-        imu.initialize(parameters);
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
