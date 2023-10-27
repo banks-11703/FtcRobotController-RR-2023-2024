@@ -135,8 +135,7 @@ public class ColorDetection extends LinearOpMode
         }
     }
 
-    public static class RedDeterminationPipeline extends OpenCvPipeline
-    {
+    public static class RedDeterminationPipeline extends OpenCvPipeline {
         /*
          * An enum to define the team element position
          */

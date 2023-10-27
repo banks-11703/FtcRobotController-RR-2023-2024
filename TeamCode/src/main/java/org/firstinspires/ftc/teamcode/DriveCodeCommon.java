@@ -11,13 +11,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 
 public class DriveCodeCommon extends LinearOpMode {
-    public static double latchClosed = 0;
-    public static double latchOpen1 =0.5;
-    public static double latchOpen2 =1;
+    public double latchClosed = 0;
+    public double latchOpen1 =0.5;
+    public double latchOpen2 =1;
+    public static double planeLatchOpen = 1.0;
+    public static double planeLatchClosed = 0.75;
+    public static int launcherTargetVelocity = 1500;
 //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74,0.79,0.9};
-    public static double flipperscore = 0.50;
-    public static double flipperintake = 1;
+    public double flipperscore = 0.50;
+    public double flipperintake = 1;
+
     GamepadEx a1 = new GamepadEx();
     GamepadEx b1 = new GamepadEx(3,true);
     GamepadEx x1 = new GamepadEx();
@@ -25,7 +29,8 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx lb1 = new GamepadEx();
     GamepadEx rb2 = new GamepadEx(4,true);
     GamepadEx lb2 = new GamepadEx(4,false);
-
+    GamepadEx a2 = new GamepadEx();
+    GamepadEx b2 = new GamepadEx();
     int[] liftTargetPos = {0,100,200,300};
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -43,6 +48,7 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.rightLift.setTargetPosition(liftTargetPos[0]);
         drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
     }
@@ -60,6 +66,9 @@ public class DriveCodeCommon extends LinearOpMode {
         if(lb2.isPressed()){
             rb2.setToggle(lb2.getCycle());
         }
+        a2.updateButton(gamepad2.a);
+        b2.updateButton(gamepad2.b);
+
     }
     public void rawDriving() {
         MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
@@ -101,10 +110,29 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
+    public void launcher() {
+        MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+        if(a2.isToggled()) {
+            drive.launchLatch.setPosition(planeLatchClosed);
+        } else {
+            drive.launchLatch.setPosition(planeLatchOpen);
+        }
+        if(b2.isToggled()) {
+            drive.planeLauncher.setVelocity(launcherTargetVelocity);
+        } else {
+            drive.planeLauncher.setVelocity(0);
+        }
+    }
+
     public void telemetry() {
-        telemetry.addData("Sample: ",true);
+        MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+        telemetry.addData("Launcher Velocity: ",drive.planeLauncher.getVelocity());
+        telemetry.addData("b2.isToggled: ",b2.isToggled());
+        telemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());
         telemetry.update();
-        dashboardTelemetry.addData("Sample: ",true);
+        dashboardTelemetry.addData("Launcher Velocity: ",drive.planeLauncher.getVelocity());
+        dashboardTelemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());
+        dashboardTelemetry.addData("b2.isToggled: ",b2.isToggled());
         dashboardTelemetry.update();
     }
 

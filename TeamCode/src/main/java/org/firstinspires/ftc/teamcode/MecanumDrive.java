@@ -94,8 +94,8 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
 //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
-    public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake;
-    public final Servo outakeLatch,flipper;
+    public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake, planeLauncher;
+    public final Servo outakeLatch,flipper,launchLatch;
 
     public final VoltageSensor voltageSensor;
 
@@ -186,8 +186,10 @@ public final class MecanumDrive {
         leftLift = hardwareMap.get(DcMotorEx.class,"ll");
         rightLift = hardwareMap.get(DcMotorEx.class,"rl");
         intake = hardwareMap.get(DcMotorEx.class, "i");
+        planeLauncher = hardwareMap.get(DcMotorEx.class,"pl");
         outakeLatch = hardwareMap.get(Servo.class,"o");
         flipper = hardwareMap.get(Servo.class,"f");
+        launchLatch = hardwareMap.get(Servo.class,"l");
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -202,6 +204,7 @@ public final class MecanumDrive {
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
         rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
+        planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
 
 //        frontLeft = hardwareMap.get(DcMotorEx.class, "leftFront");
 //        backLeft = hardwareMap.get(DcMotorEx.class, "leftBack");
