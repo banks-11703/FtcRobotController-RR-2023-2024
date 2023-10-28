@@ -54,6 +54,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
         waitForStart();
     }
+
     public void updateButtons(){
         a1.updateButton(gamepad1.a);
         b1.updateButton(gamepad1.b);
@@ -132,6 +133,8 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("b2.isToggled: ",b2.isToggled());
         telemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());
         telemetry.addData("Launcher Power; ",drive.planeLauncher.getPower());
+        telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
+        telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
         telemetry.update();
         dashboardTelemetry.addData("Launcher Velocity: ",drive.planeLauncher.getVelocity());
         dashboardTelemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());

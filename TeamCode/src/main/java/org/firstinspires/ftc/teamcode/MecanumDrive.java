@@ -208,6 +208,7 @@ public final class MecanumDrive {
         planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
 
         planeLauncher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,3,1,0));
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
 //        frontLeft = hardwareMap.get(DcMotorEx.class, "leftFront");
 //        backLeft = hardwareMap.get(DcMotorEx.class, "leftBack");
