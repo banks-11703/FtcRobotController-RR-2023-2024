@@ -46,6 +46,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
         waitForStart();
     }
+
     public void updateButtons(){
         a1.updateButton(gamepad1.a);
         b1.updateButton(gamepad1.b);
@@ -102,7 +103,9 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void telemetry() {
-        telemetry.addData("Sample: ",true);
+        MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
+        telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
+        telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
         telemetry.update();
         dashboardTelemetry.addData("Sample: ",true);
         dashboardTelemetry.update();
