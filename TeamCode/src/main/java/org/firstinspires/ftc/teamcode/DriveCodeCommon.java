@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -14,9 +15,10 @@ public class DriveCodeCommon extends LinearOpMode {
     public double latchClosed = 0;
     public double latchOpen1 =0.5;
     public double latchOpen2 =1;
+
     public static double planeLatchOpen = 1.0;
     public static double planeLatchClosed = 0.75;
-    public static int launcherTargetVelocity = 1500;
+    public static int launcherTargetVelocity = 2200;
 //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74,0.79,0.9};
     public double flipperscore = 0.50;
@@ -112,7 +114,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
     public void launcher() {
         MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
-        if(a2.isToggled()) {
+        if(a2.isPressed()) {
             drive.launchLatch.setPosition(planeLatchClosed);
         } else {
             drive.launchLatch.setPosition(planeLatchOpen);
@@ -129,10 +131,12 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("Launcher Velocity: ",drive.planeLauncher.getVelocity());
         telemetry.addData("b2.isToggled: ",b2.isToggled());
         telemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());
+        telemetry.addData("Launcher Power; ",drive.planeLauncher.getPower());
         telemetry.update();
         dashboardTelemetry.addData("Launcher Velocity: ",drive.planeLauncher.getVelocity());
         dashboardTelemetry.addData("Servo Pos: ",drive.launchLatch.getPosition());
         dashboardTelemetry.addData("b2.isToggled: ",b2.isToggled());
+        dashboardTelemetry.addData("Launcher Power; ",drive.planeLauncher.getPower());
         dashboardTelemetry.update();
     }
 
