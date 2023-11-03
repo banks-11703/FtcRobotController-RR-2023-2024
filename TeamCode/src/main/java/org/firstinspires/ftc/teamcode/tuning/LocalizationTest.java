@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Twist2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -16,7 +17,8 @@ public class LocalizationTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
+//            drive.backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            drive.backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             waitForStart();
 
             while (opModeIsActive()) {
@@ -30,7 +32,9 @@ public class LocalizationTest extends LinearOpMode {
 
                 drive.updatePoseEstimate();
 
-                telemetry.addData("x", drive.pose.position.x);
+//                telemetry.addData("x", drive.pose.position.x);
+                telemetry.addData("x", drive.backLeft.getCurrentPosition());
+
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading", drive.pose.heading);
                 telemetry.update();

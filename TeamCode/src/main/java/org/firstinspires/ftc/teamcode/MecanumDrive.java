@@ -58,13 +58,13 @@ import java.util.List;
 public final class MecanumDrive {
     public static class Params {
         // drive model parameters
-        public double inPerTick = 0;
-        public double lateralInPerTick = 1;
+        public double inPerTick = 0.00053008179204;//94.75/178746.0
+        public double lateralInPerTick = 1;//94.75/178154
         public double trackWidthTicks = 0;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
+        public double kS = 1.6465390303104583;
+        public double kV = 0.00007657175162995996;
         public double kA = 0;
 
         // path profile parameters (in inches)
@@ -205,6 +205,7 @@ public final class MecanumDrive {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        planeLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -214,7 +215,6 @@ public final class MecanumDrive {
         rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
         planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        planeLauncher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,3,1,0));
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
 //        frontLeft = hardwareMap.get(DcMotorEx.class, "leftFront");

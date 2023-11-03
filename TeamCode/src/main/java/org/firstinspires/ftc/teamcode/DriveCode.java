@@ -18,7 +18,7 @@ public class DriveCode extends DriveCodeCommon {
             rawDriving();
             intake();
             outake();
-            lift();
+//            lift();
             telemetry();
             launcher();
         }
