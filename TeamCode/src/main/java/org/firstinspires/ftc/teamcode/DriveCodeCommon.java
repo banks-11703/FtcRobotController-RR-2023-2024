@@ -82,9 +82,9 @@ public class DriveCodeCommon extends LinearOpMode {
     public void intake(){
         MecanumDrive drive = new MecanumDrive(hardwareMap,new Pose2d(0,0,0));
         if (x1.isToggled()){
-           drive.intake.setPower(-0.75);
+           drive.intake.setPower(-1);
         }else if (lb1.isPressed()){
-            drive.intake.setPower(0.75);
+            drive.intake.setPower(1);
         } else{
             drive.intake.setPower(0);
         }
