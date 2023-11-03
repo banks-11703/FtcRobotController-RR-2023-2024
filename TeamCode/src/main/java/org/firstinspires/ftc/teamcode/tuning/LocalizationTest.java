@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 
 public class LocalizationTest extends LinearOpMode {
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry dashboardTelemetry = dashboard.getTelemetry();
     @Override
     public void runOpMode() throws InterruptedException {
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
@@ -35,13 +33,7 @@ public class LocalizationTest extends LinearOpMode {
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading", drive.pose.heading);
-                telemetry.addData(" y ticks",drive.backLeft.getCurrentPosition());
                 telemetry.update();
-                dashboardTelemetry.addData("x", drive.pose);
-                dashboardTelemetry.addData("y", drive.pose.position.y);
-                dashboardTelemetry.addData("heading", drive.pose.heading);
-                dashboardTelemetry.addData(" y ticks",drive.backLeft.getCurrentPosition());
-                dashboardTelemetry.update();
 
             }
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {
