@@ -87,7 +87,6 @@ public final class MecanumDrive {
     }
 
     public static Params PARAMS = new Params();
-    public final IMU imu;
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
@@ -108,6 +107,7 @@ public final class MecanumDrive {
 
     public final VoltageSensor voltageSensor;
 
+    public final IMU imu;
 
     public final Localizer localizer;
     public Pose2d pose;
@@ -198,9 +198,7 @@ public final class MecanumDrive {
         outakeLatch = hardwareMap.get(Servo.class,"o");
         flipper = hardwareMap.get(Servo.class,"f");
         launchLatch = hardwareMap.get(Servo.class,"l");
-
-        imu = hardwareMap.get(IMU.class,"imu");
-
+        
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -233,6 +231,13 @@ public final class MecanumDrive {
 //        backLeft  .setDirection(DcMotorSimple.Direction.REVERSE);
 //        backRight .setDirection(DcMotorSimple.Direction.FORWARD);
 //        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+        imu.initialize(parameters);
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
