@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.ftccommon.internal.manualcontrol.commands.ImuCommands;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -57,14 +58,14 @@ import java.util.List;
 public final class MecanumDrive {
     public static class Params {
         // drive model parameters
-        public double inPerTick = 0;
-        public double lateralInPerTick = 1;
-        public double trackWidthTicks = 0;
+        public double inPerTick = 72/135286.5;
+        public double lateralInPerTick = 72/44300;
+        public double trackWidthTicks = 13*(8192/137795);//Track width(in)*(ticks per rev/circumference(in))
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kS = 1.5134028036104992;
+        public double kV = 0.0000774214670811227;
+        public double kA = 0.0000165;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -86,6 +87,7 @@ public final class MecanumDrive {
     }
 
     public static Params PARAMS = new Params();
+    public final IMU imu;
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
@@ -100,73 +102,12 @@ public final class MecanumDrive {
     public final AccelConstraint defaultAccelConstraint =
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
-//    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
+    //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake, planeLauncher;
     public final Servo outakeLatch,flipper,launchLatch;
 
     public final VoltageSensor voltageSensor;
 
-    public final IMU imu = new IMU() {
-        @Override
-        public boolean initialize(Parameters parameters) {
-            return false;
-        }
-
-        @Override
-        public void resetYaw() {
-
-        }
-
-        @Override
-        public YawPitchRollAngles getRobotYawPitchRollAngles() {
-            return null;
-        }
-
-        @Override
-        public Orientation getRobotOrientation(AxesReference reference, AxesOrder order, AngleUnit angleUnit) {
-            return null;
-        }
-
-        @Override
-        public Quaternion getRobotOrientationAsQuaternion() {
-            return null;
-        }
-
-        @Override
-        public AngularVelocity getRobotAngularVelocity(AngleUnit angleUnit) {
-            return null;
-        }
-
-        @Override
-        public Manufacturer getManufacturer() {
-            return null;
-        }
-
-        @Override
-        public String getDeviceName() {
-            return null;
-        }
-
-        @Override
-        public String getConnectionInfo() {
-            return null;
-        }
-
-        @Override
-        public int getVersion() {
-            return 0;
-        }
-
-        @Override
-        public void resetDeviceConfigurationForOpMode() {
-
-        }
-
-        @Override
-        public void close() {
-
-        }
-    };
 
     public final Localizer localizer;
     public Pose2d pose;
@@ -258,6 +199,8 @@ public final class MecanumDrive {
         flipper = hardwareMap.get(Servo.class,"f");
         launchLatch = hardwareMap.get(Servo.class,"l");
 
+        imu = hardwareMap.get(IMU.class,"imu");
+
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -265,10 +208,10 @@ public final class MecanumDrive {
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
         rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
         planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -290,7 +233,6 @@ public final class MecanumDrive {
 //        backLeft  .setDirection(DcMotorSimple.Direction.REVERSE);
 //        backRight .setDirection(DcMotorSimple.Direction.FORWARD);
 //        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
