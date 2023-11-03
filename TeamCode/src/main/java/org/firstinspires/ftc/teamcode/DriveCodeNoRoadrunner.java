@@ -18,7 +18,7 @@ public class DriveCodeNoRoadrunner extends DriveCodeCommon {
             rawDriving();
             intake();
             outake();
-            lift();
+//            lift();
             telemetry();
             launcher();
         }
