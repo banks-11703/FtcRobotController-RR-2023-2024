@@ -20,9 +20,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class ColorDetection extends LinearOpMode
 {
     OpenCvCamera camera;
-    RedDeterminationPipeline pipelineRed;
+    public RedDeterminationPipeline pipelineRed;
 
-    BlueDeterminationPipeline pipelineBlue;
+    public BlueDeterminationPipeline pipelineBlue;
 
     boolean lockedIn = false;
     int team = 0;//0==Blue   1==Red
@@ -475,7 +475,7 @@ public class ColorDetection extends LinearOpMode
         int avg1, avg2, avg3;
 
         // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile RedDeterminationPipeline.TeamElementPosition position = RedDeterminationPipeline.TeamElementPosition.LEFT;
+        private volatile BlueDeterminationPipeline.TeamElementPosition position = BlueDeterminationPipeline.TeamElementPosition.LEFT;
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -611,7 +611,7 @@ public class ColorDetection extends LinearOpMode
              */
             if(max == avg1) // Was it from region 1?
             {
-                position = RedDeterminationPipeline.TeamElementPosition.LEFT; // Record our analysis
+                position = BlueDeterminationPipeline.TeamElementPosition.LEFT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -626,7 +626,7 @@ public class ColorDetection extends LinearOpMode
             }
             else if(max == avg2) // Was it from region 2?
             {
-                position = RedDeterminationPipeline.TeamElementPosition.CENTER; // Record our analysis
+                position = BlueDeterminationPipeline.TeamElementPosition.CENTER; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -641,7 +641,7 @@ public class ColorDetection extends LinearOpMode
             }
             else if(max == avg3) // Was it from region 3?
             {
-                position = RedDeterminationPipeline.TeamElementPosition.RIGHT; // Record our analysis
+                position = BlueDeterminationPipeline.TeamElementPosition.RIGHT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -666,7 +666,7 @@ public class ColorDetection extends LinearOpMode
         /*
          * Call this from the OpMode thread to obtain the latest analysis
          */
-        public RedDeterminationPipeline.TeamElementPosition getAnalysis()
+        public BlueDeterminationPipeline.TeamElementPosition getAnalysis()
         {
             return position;
         }
