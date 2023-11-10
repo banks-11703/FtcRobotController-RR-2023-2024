@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Trajectory;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -19,6 +26,7 @@ public class AutoCodeCommon extends LinearOpMode {
     public ColorDetection.BlueDeterminationPipeline pipelineBlue;
 
     boolean lockedIn = false;
+    boolean wasLockedIn = false;
     int team = 0;
 
     int Team() {
@@ -37,12 +45,31 @@ public class AutoCodeCommon extends LinearOpMode {
 
     int randomizationResult;//0==left   1==center   2==right
 
+
+    int yMod = 1;
+    int xMod = 0;
+    Pose2d startRedLeft = new Pose2d(-36, -60, Math.toRadians(90));
+    Pose2d startRedRight = new Pose2d(36, -60, Math.toRadians(90));
+    Pose2d startBlueLeft = new Pose2d(36, 60, Math.toRadians(-90));
+    Pose2d startBlueRight = new Pose2d(-36, 60, Math.toRadians(-90));
+    Pose2d finalStart;
+
+    Pose2d parkLower;
+    Pose2d parkUpper;
+    Pose2d scoreClose;
+    Pose2d scoreMiddle;
+    Pose2d scoreFar;
+    Pose2d spikeLeft;
+    Pose2d spikeCenter;
+    Pose2d spikeRight;
+
+
     @Override
     public void runOpMode() throws InterruptedException {
 
     }
 
-    public void setup(MecanumDrive drive) {
+    public void setup() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipelineRed = new ColorDetection.RedDeterminationPipeline();
@@ -62,7 +89,7 @@ public class AutoCodeCommon extends LinearOpMode {
         });
     }
 
-    public void initialization(MecanumDrive drive) {
+    public void initialization() {
         while (!opModeIsActive() && !isStopRequested()) {
             a1.updateButton(gamepad1.a);
             b1.updateButton(gamepad1.b);
@@ -77,7 +104,10 @@ public class AutoCodeCommon extends LinearOpMode {
                     telemetry.addData("Analysis", pipelineRed.getAnalysis());
                     telemetry.addData("Team: ", "Red");
                 }
-                positionAnalysis(drive);
+                if (!wasLockedIn) {
+                    positionAnalysis();
+                    lockedIn = true;
+                }
             } else {
                 if (b1.isPressed()) {
                     team++;
@@ -86,6 +116,8 @@ public class AutoCodeCommon extends LinearOpMode {
                 if (x1.isPressed()) {
                     side++;
                 }
+
+                wasLockedIn = false;
             }
 
             if (a1.isPressed()) {
@@ -109,35 +141,63 @@ public class AutoCodeCommon extends LinearOpMode {
             }
             telemetry.update();
         }
-        if(Team() == 0) {
-            if(pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.LEFT) {
+        if (Team() == 0) {
+            if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
-            } else if(pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.CENTER) {
+            } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
-            } else if(pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.RIGHT) {
+            } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
             }
         } else {
-            if(pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.LEFT) {
+            if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
-            } else if(pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.CENTER) {
+            } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
-            } else if(pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.RIGHT) {
+            } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
             }
         }
     }
 
-    public void positionAnalysis(MecanumDrive drive) {
+    public void positionAnalysis() {
+        if (Team() == 0 && Side() == 0) {//blue left
+            yMod = -1;
+            xMod = 72;
+            finalStart = startBlueLeft;
+        } else if (Team() == 0 && Side() == 1) {//blue right
+            yMod = -1;
+            xMod = 0;
+            finalStart = startBlueRight;
+        } else if (Team() == 1 && Side() == 0) {//red left
+            yMod = 1;
+            xMod = 0;
+            finalStart = startRedLeft;
+        } else if (Team() == 1 && Side() == 1) {//red right
+            yMod = 1;
+            xMod = 72;
+            finalStart = startRedRight;
+        }
 
+        //all positions with y,x,or heading Mod assume red left starting
+        parkLower   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        parkUpper   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        scoreClose  = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        scoreMiddle = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        scoreFar    = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        spikeLeft   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        spikeCenter = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        spikeRight  = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
     }
 
     public void buildTrajectories(MecanumDrive drive) {
-
+//        Action a = drive.actionBuilder(drive.pose)
+//                .strafeTo(new Vector2d(0,10))
+//                .build();
     }
 
     public void scorePreloadedFloor(MecanumDrive drive) {
-
+//        Actions.runBlocking(a);
     }
 
     public void driveToBackStage(MecanumDrive drive) {
