@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -207,7 +208,7 @@ public class AutoCodeCommon extends LinearOpMode {
         scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
         scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
         spikeLeft = new Vector2d(-47.5 + xMod, -32 * yMod);
-        spikeCenter = new Vector2d(-36 + xMod, -36 * yMod);
+        spikeCenter = new Vector2d(-36 + xMod, -45 * yMod);
         spikeRight = new Vector2d(-24.5 + xMod, -32 * yMod);
     }
 
@@ -236,6 +237,8 @@ public class AutoCodeCommon extends LinearOpMode {
                 drive.updatePoseEstimate();
                 break;
         }
+        drive.intake.setPower(-0.5);
+        Actions.runBlocking(new SleepAction(10));
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(-36 + xMod, -60 * yMod), Math.toRadians(0))
                 .build());
