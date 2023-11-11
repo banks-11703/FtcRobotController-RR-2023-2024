@@ -41,7 +41,7 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx y2 = new GamepadEx();
 
     int backSpeed = -200;
-    int forwardSpeed = 1650;
+    public static int forwardSpeed = 1650;
     double planeClosed = 0.35;
     double planeOpen = 0.6;
     int planeTargetPos = 0;
@@ -147,10 +147,11 @@ public class DriveCodeCommon extends LinearOpMode {
     public void launcher(MecanumDrive drive) {//2
         switch (dpadL2.getCycle()) {
             case 0:
-                drive.launchLatch.setPosition(planeClosed);
-                drive.planeLauncher.setTargetPosition(planeTargetPos);
-                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                drive.planeLauncher.setPower(1);
+                drive.planeLauncher.setVelocity(0);
+//                drive.launchLatch.setPosition(planeClosed);
+//                drive.planeLauncher.setTargetPosition(planeTargetPos);
+//                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                drive.planeLauncher.setPower(1);
                 dpadL2.updateButton(gamepad2.dpad_left);
                 planeTimer.reset();
                 break;
