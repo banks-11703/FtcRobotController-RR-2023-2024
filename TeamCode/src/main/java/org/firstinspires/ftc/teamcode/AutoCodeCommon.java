@@ -207,7 +207,7 @@ public class AutoCodeCommon extends LinearOpMode {
         scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
         scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
         spikeLeft = new Vector2d(-47.5 + xMod, -32 * yMod);
-        spikeCenter = new Vector2d(-36 + xMod, -24.5 * yMod);
+        spikeCenter = new Vector2d(-36 + xMod, -36 * yMod);
         spikeRight = new Vector2d(-24.5 + xMod, -32 * yMod);
     }
 
