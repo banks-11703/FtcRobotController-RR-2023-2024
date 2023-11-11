@@ -13,10 +13,10 @@ public class AutoCode extends AutoCodeCommon {
         initialization();
         MecanumDrive drive = new MecanumDrive(hardwareMap, finalStart);
         waitForStart();
-        buildTrajectories(drive);
+//        buildTrajectories(drive);
         scorePreloadedFloor(drive);
         driveToBackStage(drive);
-        scorePreloadedBackdrop(drive);
+//        scorePreloadedBackdrop(drive);
         park(drive);
     }
 }

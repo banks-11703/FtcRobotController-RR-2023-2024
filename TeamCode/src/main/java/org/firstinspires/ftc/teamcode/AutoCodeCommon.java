@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.roadrunner.Action;
+import static org.firstinspires.ftc.teamcode.MecanumDrive.PARAMS;
+
+import com.acmerobotics.roadrunner.AngularVelConstraint;
+import com.acmerobotics.roadrunner.MecanumKinematics;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Trajectory;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -16,17 +19,19 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.Arrays;
+
 @Autonomous
 @Disabled
 public class AutoCodeCommon extends LinearOpMode {
 
     OpenCvCamera camera;
     public ColorDetection.RedDeterminationPipeline pipelineRed;
-
     public ColorDetection.BlueDeterminationPipeline pipelineBlue;
 
     boolean lockedIn = false;
     boolean wasLockedIn = false;
+
     int team = 0;
 
     int Team() {
@@ -39,29 +44,32 @@ public class AutoCodeCommon extends LinearOpMode {
         return side % 2;
     }  //0==Left   1==Right
 
+    boolean parkingClose = true;
+
     GamepadEx a1 = new GamepadEx();
     GamepadEx b1 = new GamepadEx();
     GamepadEx x1 = new GamepadEx();
+    GamepadEx y1 = new GamepadEx();
 
     int randomizationResult;//0==left   1==center   2==right
 
 
     int yMod = 1;
     int xMod = 0;
-    Pose2d startRedLeft = new Pose2d(-36, -60, Math.toRadians(90));
-    Pose2d startRedRight = new Pose2d(36, -60, Math.toRadians(90));
-    Pose2d startBlueLeft = new Pose2d(36, 60, Math.toRadians(-90));
-    Pose2d startBlueRight = new Pose2d(-36, 60, Math.toRadians(-90));
+    Pose2d startRedLeft = new Pose2d(-36, -63.9375, Math.toRadians(-90));
+    Pose2d startRedRight = new Pose2d(36, -63.9375, Math.toRadians(-90));
+    Pose2d startBlueLeft = new Pose2d(36, 63.9375, Math.toRadians(90));
+    Pose2d startBlueRight = new Pose2d(-36, 63.9375, Math.toRadians(90));
     Pose2d finalStart;
 
-    Pose2d parkLower;
-    Pose2d parkUpper;
-    Pose2d scoreClose;
-    Pose2d scoreMiddle;
-    Pose2d scoreFar;
-    Pose2d spikeLeft;
-    Pose2d spikeCenter;
-    Pose2d spikeRight;
+    Vector2d parkLower;
+    Vector2d parkUpper;
+    Vector2d scoreClose;
+    Vector2d scoreMiddle;
+    Vector2d scoreFar;
+    Vector2d spikeLeft;
+    Vector2d spikeCenter;
+    Vector2d spikeRight;
 
 
     @Override
@@ -94,15 +102,39 @@ public class AutoCodeCommon extends LinearOpMode {
             a1.updateButton(gamepad1.a);
             b1.updateButton(gamepad1.b);
             x1.updateButton(gamepad1.x);
+            y1.updateButton(gamepad1.y);
+
+            if (lockedIn) {
+                telemetry.addData("Press A to back out", "");
+            } else {
+                telemetry.addData("Press A to lock in decision\n" +
+                        "Press B to change team\n" +
+                        "Press X to change side\n" +
+                        "Press Y to change park location", "");
+            }
+            if (Team() == 0) {
+                telemetry.addData("Team", "Blue");
+            } else {
+                telemetry.addData("Team", "Red");
+            }
+            if (Side() == 0) {
+                telemetry.addData("Side", "Left");
+            } else {
+                telemetry.addData("Side", "Right");
+            }
+            if (parkingClose) {
+                telemetry.addData("Park Location", "Close");
+            } else {
+                telemetry.addData("Park Location", "Far");
+            }
+
             if (lockedIn) {
                 if (Team() == 0) {
                     camera.setPipeline(pipelineBlue);
                     telemetry.addData("Analysis", pipelineBlue.getAnalysis());
-                    telemetry.addData("Team: ", "Blue");
                 } else {
                     camera.setPipeline(pipelineRed);
                     telemetry.addData("Analysis", pipelineRed.getAnalysis());
-                    telemetry.addData("Team: ", "Red");
                 }
                 if (!wasLockedIn) {
                     positionAnalysis();
@@ -117,6 +149,10 @@ public class AutoCodeCommon extends LinearOpMode {
                     side++;
                 }
 
+                if (y1.isPressed()) {
+                    parkingClose = !parkingClose;
+                }
+
                 wasLockedIn = false;
             }
 
@@ -124,21 +160,6 @@ public class AutoCodeCommon extends LinearOpMode {
                 lockedIn = !lockedIn;
             }
 
-            if (lockedIn) {
-                telemetry.addData("Press A to back out", "");
-            } else {
-                telemetry.addData("Press A to lock in decision", "");
-            }
-            if (Team() == 0) {
-                telemetry.addData("Team: ", "Blue");
-            } else {
-                telemetry.addData("Team: ", "Red");
-            }
-            if (Side() == 0) {
-                telemetry.addData("Side: ", "Left");
-            } else {
-                telemetry.addData("Side: ", "Right");
-            }
             telemetry.update();
         }
         if (Team() == 0) {
@@ -180,28 +201,52 @@ public class AutoCodeCommon extends LinearOpMode {
         }
 
         //all positions with y,x,or heading Mod assume red left starting
-        parkLower   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        parkUpper   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        scoreClose  = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        scoreMiddle = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        scoreFar    = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        spikeLeft   = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        spikeCenter = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
-        spikeRight  = new Pose2d(-36 + xMod, -60 * yMod, Math.toRadians(90 * yMod));
+        parkLower = new Vector2d(54, -60 * yMod);
+        parkUpper = new Vector2d(54, -12 * yMod);
+        scoreClose = new Vector2d(-36 + xMod, -60 * yMod);
+        scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
+        scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
+        spikeLeft = new Vector2d(-47.5 + xMod, -32 * yMod);
+        spikeCenter = new Vector2d(-36 + xMod, -24.5 * yMod);
+        spikeRight = new Vector2d(-24.5 + xMod, -32 * yMod);
     }
 
     public void buildTrajectories(MecanumDrive drive) {
-//        Action a = drive.actionBuilder(drive.pose)
-//                .strafeTo(new Vector2d(0,10))
-//                .build();
+
     }
 
     public void scorePreloadedFloor(MecanumDrive drive) {
-//        Actions.runBlocking(a);
+        switch (randomizationResult) {
+            case 0:
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(spikeLeft, Math.toRadians(-90 * yMod))
+                        .build());
+                drive.updatePoseEstimate();
+                break;
+            case 1:
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(spikeCenter, Math.toRadians(-90 * yMod))
+                        .build());
+                drive.updatePoseEstimate();
+                break;
+            case 2:
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(spikeRight, Math.toRadians(-90 * yMod))
+                        .build());
+                drive.updatePoseEstimate();
+                break;
+        }
+        Actions.runBlocking(drive.actionBuilder(drive.pose)
+                .strafeToLinearHeading(new Vector2d(-36 + xMod, -60 * yMod), Math.toRadians(0))
+                .build());
+        drive.updatePoseEstimate();
     }
 
     public void driveToBackStage(MecanumDrive drive) {
-
+        Actions.runBlocking(drive.actionBuilder(drive.pose)
+                .strafeToLinearHeading(new Vector2d(36, -60 * yMod), Math.toRadians(0))
+                .build());
+        drive.updatePoseEstimate();
     }
 
     public void scorePreloadedBackdrop(MecanumDrive drive) {
@@ -209,7 +254,26 @@ public class AutoCodeCommon extends LinearOpMode {
     }
 
     public void park(MecanumDrive drive) {
-
+        if (parkingClose) {
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(parkLower, Math.toRadians(0))
+                    .build());
+            drive.updatePoseEstimate();
+        } else {
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(new Vector2d(36, -12), Math.toRadians(0))
+                    .build());
+            drive.updatePoseEstimate();
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(parkUpper, Math.toRadians(0))
+                    .build());
+            drive.updatePoseEstimate();
+//                        VelConstraint defaultVelConstraint =
+//                    new MinVelConstraint(Arrays.asList(
+//                            kinematics.new WheelVelConstraint(PARAMS.maxWheelVel),
+//                            new AngularVelConstraint(PARAMS.maxAngVel)
+//                    ));
+        }
     }
 
 }

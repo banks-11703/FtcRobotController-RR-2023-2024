@@ -19,6 +19,12 @@ public class LocalizationTest extends LinearOpMode {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 //            drive.backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //            drive.backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            drive.backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            drive.backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            drive.frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            drive.frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            drive.frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            drive.frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             waitForStart();
 
             while (opModeIsActive()) {
@@ -33,10 +39,12 @@ public class LocalizationTest extends LinearOpMode {
                 drive.updatePoseEstimate();
 
 //                telemetry.addData("x", drive.pose.position.x);
-                telemetry.addData("x", drive.backLeft.getCurrentPosition());
+//                telemetry.addData("y", drive.pose.position.y);
+//                telemetry.addData("heading", drive.pose.heading);
+                telemetry.addData("par0",drive.frontRight.getCurrentPosition());
+                telemetry.addData("par1",drive.frontLeft.getCurrentPosition());
+                telemetry.addData("perp", drive.backRight.getCurrentPosition());
 
-                telemetry.addData("y", drive.pose.position.y);
-                telemetry.addData("heading", drive.pose.heading);
                 telemetry.update();
 
             }

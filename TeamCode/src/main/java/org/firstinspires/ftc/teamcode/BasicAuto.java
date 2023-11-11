@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import java.util.Arrays;
 @Autonomous
-@Disabled
 public class BasicAuto extends LinearOpMode {
 
 
@@ -24,7 +23,7 @@ public class BasicAuto extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         waitForStart();
         Action a = drive.actionBuilder(drive.pose)
-                .strafeTo(new Vector2d(0,10))
+                .turn(Math.toRadians(90))
                 .build();
         Actions.runBlocking(a);
     }

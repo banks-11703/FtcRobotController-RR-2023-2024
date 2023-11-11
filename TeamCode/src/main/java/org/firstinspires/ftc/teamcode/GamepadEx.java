@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 public class GamepadEx {
     private boolean wasPressed;
+    private boolean pressedOnce;
+    private boolean gamepadInput;
     private int toggle;
     private int cycleLength;
 
@@ -31,6 +33,7 @@ public class GamepadEx {
     }
 
     public void updateButton(boolean gamepadInput) {
+        this.gamepadInput = gamepadInput;
         if(gamepadInput && !wasPressed) {
             if(cycleUp) {
                 toggle++;
@@ -41,15 +44,19 @@ public class GamepadEx {
                     toggle--;
                 }
             }
+            pressedOnce = true;
             toggle%=cycleLength;
             wasPressed = true;
         } else if(!gamepadInput && wasPressed){
             wasPressed = false;
+            pressedOnce = false;
         }
     }
 
     public boolean isPressed() {
-        return wasPressed;
+        boolean wasPressedOnce = pressedOnce;
+        pressedOnce = false;
+        return wasPressedOnce;
     }
 
     public boolean isToggled() {
@@ -58,6 +65,10 @@ public class GamepadEx {
         } else {
             return true;
         }
+    }
+
+    public boolean isHeld() {
+        return gamepadInput;
     }
 
     public int getCycle() {

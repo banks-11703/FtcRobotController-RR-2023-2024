@@ -156,9 +156,9 @@ public class ColorDetection extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(400,480);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(700,480);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1000,480);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(10,40);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(525,20);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1150,40);
         static final int REGION_WIDTH = 100;
         static final int REGION_HEIGHT = 100;
 
@@ -424,9 +424,9 @@ public class ColorDetection extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(400,480);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(700,480);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1000,480);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(10,40);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(525,20);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1150,40);
         static final int REGION_WIDTH = 100;
         static final int REGION_HEIGHT = 100;
 
