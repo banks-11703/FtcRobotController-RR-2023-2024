@@ -14,9 +14,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import java.util.Arrays;
+@Disabled
 @Autonomous
 public class BasicAuto extends LinearOpMode {
-
 
     @Override
     public void runOpMode() throws InterruptedException {
