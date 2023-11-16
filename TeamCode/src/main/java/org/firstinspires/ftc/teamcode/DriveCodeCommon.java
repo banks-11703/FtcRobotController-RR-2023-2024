@@ -7,6 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 @Config
 
@@ -39,9 +43,11 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx b2 = new GamepadEx(4, false);//liftdown
     GamepadEx dpadL2 = new GamepadEx(5, true);//planeLauncher
     GamepadEx y2 = new GamepadEx();
+    private AprilTagProcessor aprilTag;
 
+    private VisionPortal visionPortal;
     int backSpeed = -200;
-    public static int forwardSpeed = 1650;
+    public static int forwardSpeed = 2300;
     double planeClosed = 0.35;
     double planeOpen = 0.6;
     int planeTargetPos = 0;
@@ -148,7 +154,7 @@ public class DriveCodeCommon extends LinearOpMode {
         switch (dpadL2.getCycle()) {
             case 0:
                 drive.planeLauncher.setVelocity(0);
-//                drive.launchLatch.setPosition(planeClosed);
+                drive.launchLatch.setPosition(planeClosed);
 //                drive.planeLauncher.setTargetPosition(planeTargetPos);
 //                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                drive.planeLauncher.setPower(1);
@@ -186,7 +192,16 @@ public class DriveCodeCommon extends LinearOpMode {
                 break;
         }
     }
+    private void initAprilTag() {
 
+        // Create the AprilTag processor the easy way.
+        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+
+        // Create the vision portal the easy way.
+            visionPortal = VisionPortal.easyCreateWithDefaults(
+                    hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
+
+    }
     public void telemetry(MecanumDrive drive) {
         telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
         telemetry.addData("b2.isToggled: ", b2.isToggled());
