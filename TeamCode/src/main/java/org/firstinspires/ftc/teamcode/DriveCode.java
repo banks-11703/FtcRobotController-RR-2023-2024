@@ -13,6 +13,7 @@ public class DriveCode extends DriveCodeCommon {
     public void runOpMode() {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         Initialization(drive);
+        initAprilTag();
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive() && !isStopRequested()) {

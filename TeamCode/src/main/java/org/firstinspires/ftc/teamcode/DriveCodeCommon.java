@@ -43,9 +43,9 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx b2 = new GamepadEx(4, false);//liftdown
     GamepadEx dpadL2 = new GamepadEx(5, true);//planeLauncher
     GamepadEx y2 = new GamepadEx();
-    private AprilTagProcessor aprilTag;
+    public AprilTagProcessor aprilTag;
 
-    private VisionPortal visionPortal;
+    public VisionPortal visionPortal;
     int backSpeed = -200;
     public static int forwardSpeed = 2300;
     double planeClosed = 0.35;
@@ -66,6 +66,8 @@ public class DriveCodeCommon extends LinearOpMode {
 
     public void Initialization(MecanumDrive drive) {
         telemetry.update();
+        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.leftLift.setTargetPosition(liftTargetPos[0]);
         drive.rightLift.setTargetPosition(liftTargetPos[0]);
         drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -192,16 +194,18 @@ public class DriveCodeCommon extends LinearOpMode {
                 break;
         }
     }
-    private void initAprilTag() {
+
+    public void initAprilTag() {
 
         // Create the AprilTag processor the easy way.
         aprilTag = AprilTagProcessor.easyCreateWithDefaults();
 
         // Create the vision portal the easy way.
             visionPortal = VisionPortal.easyCreateWithDefaults(
-                    hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
+                    hardwareMap.get(WebcamName.class, "Webcam 2"), aprilTag);
 
     }
+
     public void telemetry(MecanumDrive drive) {
         telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
         telemetry.addData("b2.isToggled: ", b2.isToggled());
