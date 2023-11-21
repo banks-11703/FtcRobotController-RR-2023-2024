@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Twist2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -253,92 +254,21 @@ public class AutoCodeCommon extends LinearOpMode {
             drive.intake.setPower(0);
         }
 
-//        switch (randomizationResult) {
-//            case 0:
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeCenter, Math.toRadians(-90 * yMod))
-//                        .turn(Math.toRadians(90))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeLeft, Math.toRadians(headingMod))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                drive.intake.setPower(0.5);
-//                Actions.runBlocking(new SleepAction(1));
-////                drive.intake.setPower(0.3);
-////                Actions.runBlocking(new SleepAction(1));
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeCenter, Math.toRadians(headingMod))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(new Vector2d(-36 + xMod, -50 * yMod), Math.toRadians(headingMod))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(new Vector2d(-42 + xMod, -63 * yMod), Math.toRadians(0))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                break;
-//            case 1:
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeCenter, Math.toRadians(-90 * yMod))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                drive.intake.setPower(0.3);
-//                Actions.runBlocking(new SleepAction(1));
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(new Vector2d(-42 + xMod, -63 * yMod), Math.toRadians(0))
-//                        .turnTo(Math.toRadians(0))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                break;
-//            case 2:
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeCenter, Math.toRadians(-90 * yMod))
-//                        .turn(Math.toRadians(-90))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                        .strafeToLinearHeading(spikeRight, Math.toRadians(180 + headingMod))
-//                        .build());
-//                drive.updatePoseEstimate();
-//                drive.intake.setPower(0.3);
-//                Actions.runBlocking(new SleepAction(1));
-//                if (Team() == 1 || Side() == 0) {
-//                    Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                            .strafeToLinearHeading(spikeCenter, Math.toRadians(180 + headingMod))
-//                            .build());
-//                    drive.updatePoseEstimate();
-//                    Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                            .strafeToLinearHeading(new Vector2d(-42 + xMod, -63 * yMod), Math.toRadians(0))
-//                            .turnTo(Math.toRadians(0))
-//                            .build());
-//                    drive.updatePoseEstimate();
-//                } else {
-//                    Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                            .strafeToLinearHeading(spikeCenter, Math.toRadians(0))
-//                            .build());
-//                    drive.updatePoseEstimate();
-//                    Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                            .strafeToLinearHeading(new Vector2d(-42 + xMod, -63 * yMod), Math.toRadians(180))
-//                            .turnTo(Math.toRadians(0))
-//                            .build());
-//                    drive.updatePoseEstimate();
-//                }
-//                break;
-//        }
-
     }
 
     public void driveToBackStage(MecanumDrive drive) {
-//        if ((Team() == 0 && Side() == 1) || (Team() == 1 && Side() == 0)) {
-//            Actions.runBlocking(drive.actionBuilder(drive.pose)
-//                    .strafeToLinearHeading(new Vector2d(36, -63 * yMod), drive.pose.heading)
-//                    .build());
-//            drive.updatePoseEstimate();
-//        }
+        if (!drive.pose.heading.equals(new Rotation2d(1.0, 0.0))) {
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .turnTo(new Rotation2d(1.0,0.0))
+                    .build()
+            );
+        }
+
+        Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(new Vector2d(36,-12*yMod),new Rotation2d(1.0,0.0))
+                .build()
+        );
+
     }
 
     public void scorePreloadedBackdrop(MecanumDrive drive) {
@@ -398,8 +328,8 @@ public class AutoCodeCommon extends LinearOpMode {
                     yPower = (detection.ftcPose.y - 10) / aprilTagYMod;
                     rotationPower = detection.ftcPose.yaw / aprilTagHeadingMod;
                     if (Math.abs(detection.ftcPose.x) <= 1 &&
-                        Math.abs(detection.ftcPose.y - 10) <= 1 &&
-                        Math.abs(detection.ftcPose.yaw - 90) <= 5) {
+                            Math.abs(detection.ftcPose.y - 10) <= 1 &&
+                            Math.abs(detection.ftcPose.yaw - 90) <= 5) {
                         done = true;
                     }
                 }
