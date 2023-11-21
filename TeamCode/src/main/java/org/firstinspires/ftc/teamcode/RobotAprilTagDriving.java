@@ -29,7 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -111,6 +113,7 @@ public class RobotAprilTagDriving extends LinearOpMode {
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
 
+
     @Override
     public void runOpMode() {
         boolean targetFound = false;    // Set to true when an AprilTag target is detected
@@ -190,10 +193,14 @@ public class RobotAprilTagDriving extends LinearOpMode {
                 turn = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
                 telemetry.addData("Manual", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", forward, strafe, turn);
             }
-            telemetry.update();
+
 
             // Apply desired axes motions to the drivetrain.
-            moveRobot(forward, strafe, turn, drive);
+            telemetry.addData("Forward Power", forward);
+            telemetry.addData("Strafe Power", strafe);
+            telemetry.addData("Turn Power", turn);
+//            moveRobot(forward, strafe, turn, drive);
+            telemetry.update();
             sleep(10);
         }
     }
@@ -238,6 +245,7 @@ public class RobotAprilTagDriving extends LinearOpMode {
      * Initialize the AprilTag processor.
      */
     private void initAprilTag() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder().build();
 

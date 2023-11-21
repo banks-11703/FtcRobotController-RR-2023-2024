@@ -105,11 +105,11 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.intake.setPower(0);
         }
           if (gamepad1.y){
-              drive.intakeServoL.setPower(-1);
-              drive.intakeServoR.setPower(1);
+              drive.intakeServoL.setPosition(1);
+              drive.intakeServoR.setPosition(0);
           }else{
-              drive.intakeServoL.setPower(0);
-              drive.intakeServoR.setPower(0);
+              drive.intakeServoL.setPosition(0);
+              drive.intakeServoR.setPosition(1);
           }
     }
 
@@ -209,7 +209,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
         // Create the vision portal the easy way.
         visionPortal = VisionPortal.easyCreateWithDefaults(
-                hardwareMap.get(WebcamName.class, "Webcam 2"), aprilTag);
+                hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
 
     }
 

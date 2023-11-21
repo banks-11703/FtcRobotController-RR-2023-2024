@@ -35,7 +35,7 @@ public class BasicAuto extends LinearOpMode {
 
         // Create the vision portal the easy way.
         visionPortal = VisionPortal.easyCreateWithDefaults(
-                hardwareMap.get(WebcamName.class, "Webcam 2"), aprilTag);
+                hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
 
     }
     public void telemetryAprilTag() {
