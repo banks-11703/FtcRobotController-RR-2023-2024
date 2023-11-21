@@ -31,6 +31,7 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -104,6 +105,8 @@ public final class MecanumDrive {
     //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake, planeLauncher;
     public final Servo outakeLatch,flipper,launchLatch;
+
+    public final CRServo intakeServoL, intakeServoR;
 
     public final VoltageSensor voltageSensor;
 
@@ -198,7 +201,9 @@ public final class MecanumDrive {
         outakeLatch = hardwareMap.get(Servo.class,"o");
         flipper = hardwareMap.get(Servo.class,"f");
         launchLatch = hardwareMap.get(Servo.class,"l");
-        
+
+        intakeServoL = hardwareMap.get(CRServo.class, "isl");
+        intakeServoR = hardwareMap.get(CRServo.class, "isr");
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

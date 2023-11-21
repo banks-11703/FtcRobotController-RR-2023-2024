@@ -22,14 +22,15 @@ public class DriveCodeCommon extends LinearOpMode {
 
     //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74, 0.79, 0.9};
-    public double flipperscore = 0.55;
-    public double flipperintake = 1;
+    public double flipperscore = 0.175;
+    public double flipperintake = 0.775;
 
     double liftModSum = 0;
     int finalLiftPos = 0;
     double driveSpeedMod = 1;
+
     double DriveSpeedMod() {
-        if(gamepad1.left_trigger+gamepad1.right_trigger>0.1) {
+        if (gamepad1.left_trigger + gamepad1.right_trigger > 0.1) {
             return 0.5;
         } else {
             return 1;
@@ -88,25 +89,32 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void rawDriving(MecanumDrive drive) {
-        drive.frontLeft.setPower ((-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x)*DriveSpeedMod());
-        drive.frontRight.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x)*DriveSpeedMod());
-        drive.backRight.setPower ((-gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x)*DriveSpeedMod());
-        drive.backLeft.setPower  ((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x)*DriveSpeedMod());
+        drive.frontLeft.setPower((-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x) * DriveSpeedMod());
+        drive.frontRight.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x) * DriveSpeedMod());
+        drive.backRight.setPower((-gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x) * DriveSpeedMod());
+        drive.backLeft.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * DriveSpeedMod());
 
     }
 
     public void intake(MecanumDrive drive) {//1
-        if (x1.isToggled()) {
-            drive.intake.setPower(-1);
-        } else if (b1.isHeld()) {
+          if (b1.isHeld()) {
             drive.intake.setPower(1);
+        }else if (x1.isToggled()) {
+            drive.intake.setPower(-1);
         } else {
             drive.intake.setPower(0);
         }
+          if (gamepad1.y){
+              drive.intakeServoL.setPower(-1);
+              drive.intakeServoR.setPower(1);
+          }else{
+              drive.intakeServoL.setPower(0);
+              drive.intakeServoR.setPower(0);
+          }
     }
 
     public void lift(MecanumDrive drive) {//2
-        if(a2.isPressed()) {
+        if (a2.isPressed()) {
             liftBusy = true;
             drive.leftLift.setTargetPosition(0);
             drive.rightLift.setTargetPosition(0);
@@ -115,8 +123,8 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.leftLift.setPower(1);
             drive.leftLift.setPower(1);
         }
-        if(liftBusy) {
-            if(Math.abs(drive.leftLift.getTargetPosition()-drive.leftLift.getCurrentPosition())+Math.abs(drive.rightLift.getTargetPosition()-drive.rightLift.getCurrentPosition())<= 50) {
+        if (liftBusy) {
+            if (Math.abs(drive.leftLift.getTargetPosition() - drive.leftLift.getCurrentPosition()) + Math.abs(drive.rightLift.getTargetPosition() - drive.rightLift.getCurrentPosition()) <= 50) {
                 liftBusy = false;
             }
         } else {
@@ -130,7 +138,6 @@ public class DriveCodeCommon extends LinearOpMode {
                 drive.rightLift.setPower(-gamepad2.left_trigger);
             }
         }
-
 
 
 //        liftModSum += gamepad1.right_trigger - gamepad1.left_trigger;
@@ -201,8 +208,8 @@ public class DriveCodeCommon extends LinearOpMode {
         aprilTag = AprilTagProcessor.easyCreateWithDefaults();
 
         // Create the vision portal the easy way.
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    hardwareMap.get(WebcamName.class, "Webcam 2"), aprilTag);
+        visionPortal = VisionPortal.easyCreateWithDefaults(
+                hardwareMap.get(WebcamName.class, "Webcam 2"), aprilTag);
 
     }
 
