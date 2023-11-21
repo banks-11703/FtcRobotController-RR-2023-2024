@@ -35,13 +35,7 @@ public class ColorDetection extends LinearOpMode
     @Override
     public void runOpMode()
     {
-        /**
-         * NOTE: Many comments have been omitted from this sample for the
-         * sake of conciseness. If you're just starting out with EasyOpenCv,
-         * you should take a look at {@link InternalCamera1Example} or its
-         * webcam counterpart, {@link WebcamExample} first.
-         */
-
+        // Initialize OpenCV webcam
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipelineRed = new RedDeterminationPipeline();
@@ -78,7 +72,7 @@ public class ColorDetection extends LinearOpMode
 //        });
 
         while (!opModeIsActive() && !isStopRequested()) {
-            if(lockedIn) {
+
                 if(Team()==0) {
                     camera.setPipeline(pipelineBlue);
                     telemetry.addData("Analysis", pipelineBlue.getAnalysis());
@@ -88,21 +82,7 @@ public class ColorDetection extends LinearOpMode
                     telemetry.addData("Analysis", pipelineRed.getAnalysis());
                     telemetry.addData("Team: ","Red");
                 }
-                telemetry.addData("Press A to back out","");
-                telemetry.update();
-                if(gamepad1.a && !a1IsPressed) {
-                    lockedIn = false;
-                    a1IsPressed = true;
-                } else if(!gamepad1.a && a1IsPressed) {
-                    a1IsPressed = false;
-                }
-            } else {
-                if(gamepad1.a && !a1IsPressed) {
-                    lockedIn = true;
-                    a1IsPressed = true;
-                } else if(!gamepad1.a && a1IsPressed) {
-                    a1IsPressed = false;
-                }
+
 
                 if(gamepad1.b && !b1IsPressed) {
                     team++;
@@ -110,18 +90,7 @@ public class ColorDetection extends LinearOpMode
                 } else if(!gamepad1.b && b1IsPressed) {
                     b1IsPressed = false;
                 }
-
-                telemetry.addData("Press A to lock in decision","");
-                if(Team()==0) {
-                    telemetry.addData("Team: ","Blue");
-                } else {
-                    telemetry.addData("Team: ","Red");
-                }
-                telemetry.addData("team = ",team);
                 telemetry.update();
-            }
-
-
         }
 
         waitForStart();
@@ -262,27 +231,25 @@ public class ColorDetection extends LinearOpMode
              * reflected in the Y channel.
              *
              * After we've converted to YCrCb, we extract just the 2nd channel, the
-             * Cb channel. We do this because stones are bright yellow and contrast
-             * STRONGLY on the Cb channel against everything else, including SkyStones
-             * (because SkyStones have a black label).
+             * Cr channel. We do this because on red team you're looking for your blue
+             * element and Cr channel is looking for red.
              *
              * We then take the average pixel value of 3 different regions on that Cb
-             * channel, one positioned over each stone. The brightest of the 3 regions
-             * is where we assume the SkyStone to be, since the normal stones show up
-             * extremely darkly.
+             * channel, one positioned over each possible randomization. The highest
+             * average red value is where the team element is assumed to be.
              *
              * We also draw rectangles on the screen showing where the sample regions
              * are, as well as drawing a solid rectangle over top the sample region
-             * we believe is on top of the SkyStone.
+             * we believe is on top of the team element.
              *
              * In order for this whole process to work correctly, each sample region
-             * should be positioned in the center of each of the first 3 stones, and
-             * be small enough such that only the stone is sampled, and not any of the
+             * should be positioned in the center of each of the 3 randomization spots, and
+             * be small enough such that only the team element is sampled, and not any of the
              * surroundings.
              */
 
             /*
-             * Get the Cb channel of the input frame after conversion to YCrCb
+             * Get the Cr channel of the input frame after conversion to YCrCb
              */
             inputToCr(input);
 
@@ -530,22 +497,20 @@ public class ColorDetection extends LinearOpMode
              * reflected in the Y channel.
              *
              * After we've converted to YCrCb, we extract just the 2nd channel, the
-             * Cb channel. We do this because stones are bright yellow and contrast
-             * STRONGLY on the Cb channel against everything else, including SkyStones
-             * (because SkyStones have a black label).
+             * Cb channel. We do this because on blue team you're looking for your blue
+             * element and Cb channel is looking for blue.
              *
              * We then take the average pixel value of 3 different regions on that Cb
-             * channel, one positioned over each stone. The brightest of the 3 regions
-             * is where we assume the SkyStone to be, since the normal stones show up
-             * extremely darkly.
+             * channel, one positioned over each possible randomization. The highest
+             * average blue value is where the team element is assumed to be.
              *
              * We also draw rectangles on the screen showing where the sample regions
              * are, as well as drawing a solid rectangle over top the sample region
-             * we believe is on top of the SkyStone.
+             * we believe is on top of the team element.
              *
              * In order for this whole process to work correctly, each sample region
-             * should be positioned in the center of each of the first 3 stones, and
-             * be small enough such that only the stone is sampled, and not any of the
+             * should be positioned in the center of each of the 3 randomization spots, and
+             * be small enough such that only the team element is sampled, and not any of the
              * surroundings.
              */
 
