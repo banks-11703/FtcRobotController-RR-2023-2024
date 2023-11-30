@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -37,18 +36,21 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
+    GamepadEx a1 = new GamepadEx();
     GamepadEx x1 = new GamepadEx();//intake
     GamepadEx b1 = new GamepadEx();//intake out
     GamepadEx x2 = new GamepadEx();//outtake
     GamepadEx a2 = new GamepadEx();//liftToZero
     GamepadEx b2 = new GamepadEx(4, false);//liftdown
-    GamepadEx dpadL2 = new GamepadEx(5, true);//planeLauncher
+    GamepadEx dpadL1 = new GamepadEx(5, true);//planeLauncher
     GamepadEx y2 = new GamepadEx();
     public AprilTagProcessor aprilTag;
 
     public VisionPortal visionPortal;
     int backSpeed = -200;
     public static int forwardSpeed = 2300;
+    public static double dropServoUp = 1;
+    public static double dropServoDown = 0;
     double planeClosed = 0.35;
     double planeOpen = 0.6;
     int planeTargetPos = 0;
@@ -80,6 +82,7 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void updateButtons(MecanumDrive drive) {
+        a1.updateButton(gamepad1.a);
         x1.updateButton(gamepad1.x);
         x2.updateButton(gamepad2.x);
         b1.updateButton(gamepad1.b);
@@ -97,20 +100,25 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void intake(MecanumDrive drive) {//1
-          if (b1.isHeld()) {
+        if (b1.isHeld()) {
             drive.intake.setPower(1);
-        }else if (x1.isToggled()) {
+        } else if (x1.isToggled()) {
             drive.intake.setPower(-1);
         } else {
             drive.intake.setPower(0);
         }
-          if (gamepad1.y){
-              drive.intakeServoL.setPosition(1);
-              drive.intakeServoR.setPosition(0);
-          }else{
-              drive.intakeServoL.setPosition(0);
-              drive.intakeServoR.setPosition(1);
-          }
+        if (gamepad1.y) {
+            drive.intakeServoL.setPosition(1);
+            drive.intakeServoR.setPosition(0);
+        } else {
+            drive.intakeServoL.setPosition(0);
+            drive.intakeServoR.setPosition(1);
+        }
+        if (a1.isToggled()){
+            drive.dropServo.setPosition(dropServoDown);
+        }else{
+            drive.dropServo.setPosition(dropServoUp);
+        }
     }
 
     public void lift(MecanumDrive drive) {//2
@@ -160,14 +168,14 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void launcher(MecanumDrive drive) {//2
-        switch (dpadL2.getCycle()) {
+        switch (dpadL1.getCycle()) {
             case 0:
                 drive.planeLauncher.setVelocity(0);
                 drive.launchLatch.setPosition(planeClosed);
 //                drive.planeLauncher.setTargetPosition(planeTargetPos);
 //                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                drive.planeLauncher.setPower(1);
-                dpadL2.updateButton(gamepad2.dpad_left);
+                dpadL1.updateButton(gamepad1.dpad_left);
                 planeTimer.reset();
                 break;
             case 1:
@@ -175,28 +183,28 @@ public class DriveCodeCommon extends LinearOpMode {
                 drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 if (planeTimer.milliseconds() > 500) {
                     planeTimer.reset();
-                    dpadL2.setToggle(dpadL2.getCycle() + 1);
+                    dpadL1.setToggle(dpadL1.getCycle() + 1);
                 }
                 break;
             case 2:
                 drive.planeLauncher.setVelocity(backSpeed);
                 if (planeTimer.milliseconds() > 1000) {
                     planeTimer.reset();
-                    dpadL2.setToggle(dpadL2.getCycle() + 1);
+                    dpadL1.setToggle(dpadL1.getCycle() + 1);
                 }
                 break;
             case 3:
                 drive.planeLauncher.setVelocity(forwardSpeed);
                 if (Math.abs(drive.planeLauncher.getVelocity() - forwardSpeed) < 20) {
                     planeTimer.reset();
-                    dpadL2.setToggle(dpadL2.getCycle() + 1);
+                    dpadL1.setToggle(dpadL1.getCycle() + 1);
                 }
                 break;
             case 4:
                 drive.launchLatch.setPosition(planeOpen);
                 planeTargetPos = drive.planeLauncher.getCurrentPosition();
                 if (planeTimer.milliseconds() > 500) {
-                    dpadL2.setToggle(0);
+                    dpadL1.setToggle(0);
                 }
                 break;
         }
