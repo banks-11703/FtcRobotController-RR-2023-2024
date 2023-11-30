@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,8 +19,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @TeleOp
-public class ColorDetection extends LinearOpMode
-{
+@Config
+public class ColorDetection extends LinearOpMode {
     OpenCvCamera camera;
     public RedDeterminationPipeline pipelineRed;
 
@@ -104,6 +106,15 @@ public class ColorDetection extends LinearOpMode
         }
     }
 
+    /*
+     * The core values which define the location and size of the sample regions
+     */
+    public static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,840);
+    public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(615,825);
+    public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1120,840);
+    public static int REGION_WIDTH = 50;
+    public static int REGION_HEIGHT = 50;
+
     public static class RedDeterminationPipeline extends OpenCvPipeline {
         /*
          * An enum to define the team element position
@@ -122,14 +133,7 @@ public class ColorDetection extends LinearOpMode
         static final Scalar GREEN = new Scalar(0, 255, 0);
         static final Scalar RED = new Scalar(255, 0, 0);
 
-        /*
-         * The core values which define the location and size of the sample regions
-         */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(10,40);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(525,20);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1150,40);
-        static final int REGION_WIDTH = 100;
-        static final int REGION_HEIGHT = 100;
+
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -391,11 +395,6 @@ public class ColorDetection extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(10,40);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(525,20);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1150,40);
-        static final int REGION_WIDTH = 100;
-        static final int REGION_HEIGHT = 100;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
