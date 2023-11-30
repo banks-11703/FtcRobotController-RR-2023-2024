@@ -21,8 +21,8 @@ public class DriveCodeCommon extends LinearOpMode {
 
     //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74, 0.79, 0.9};
-    public double flipperscore = 0.175;
-    public double flipperintake = 0.775;
+    public static double flipperscore = 0.35;
+    public static double flipperintake = 0.81;
 
     double liftModSum = 0;
     int finalLiftPos = 0;
