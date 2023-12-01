@@ -19,7 +19,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @TeleOp
-@Config
+//@Config
 public class ColorDetection extends LinearOpMode {
     OpenCvCamera camera;
     public RedDeterminationPipeline pipelineRed;
@@ -35,8 +35,7 @@ public class ColorDetection extends LinearOpMode {
     boolean b1IsPressed = false;
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
         // Initialize OpenCV webcam
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);

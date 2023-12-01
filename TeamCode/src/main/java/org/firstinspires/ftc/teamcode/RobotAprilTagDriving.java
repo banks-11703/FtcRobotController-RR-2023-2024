@@ -37,12 +37,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -89,29 +91,40 @@ import java.util.concurrent.TimeUnit;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  *
  */
-
-@TeleOp(name = "Omni Drive To AprilTag", group = "Concept")
+@TeleOp
 @Config
 public class RobotAprilTagDriving extends LinearOpMode {
     // Adjust these numbers to suit your robot.
-    final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
+    public static double DESIRED_DISTANCE = 9; //  this is how close the camera should get to the target (inches)
+    public static double DESIRED_BEARING = 0;
+    public static double DESIRED_YAW = -4;
+
+    public static double DISTANCE_F = 0.075;
+    public static double BEARING_F = 0.2;
+    public static double YAW_F = 0.10;
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    public static double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    public static double STRAFE_GAIN = 0.015;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    public static double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    public static double SPEED_GAIN = 0.04;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    public static double STRAFE_GAIN = 0.04;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    public static double TURN_GAIN = 0.02;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
-    final double MAX_AUTO_SPEED = 1.0;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE = 1.0;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_TURN = 0.5;   //  Clip the turn speed to this max value (adjust for your robot)
+    final double MAX_AUTO_SPEED = 0.3;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE = 0.3;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_TURN = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
 
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
-    private static final int DESIRED_TAG_ID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
+    public static int DESIRED_TAG_ID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
+
+    private double desiredTagRange = 0;
+    private double desiredTagBearing = 0;
+    private double desiredTagYaw = 0;
+
+    ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
 
     @Override
@@ -135,7 +148,7 @@ public class RobotAprilTagDriving extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !isStopRequested()) {
             targetFound = false;
             desiredTag = null;
 
@@ -147,8 +160,14 @@ public class RobotAprilTagDriving extends LinearOpMode {
                     //  Check to see if we want to track towards this tag.
                     if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
                         // Yes, we want to use this tag.
+                        if (gamepad1.left_bumper) {
+                            timeSinceSeen.reset();
+                        }
                         targetFound = true;
                         desiredTag = detection;
+                        desiredTagRange = desiredTag.ftcPose.range;
+                        desiredTagBearing = desiredTag.ftcPose.bearing;
+                        desiredTagYaw = desiredTag.ftcPose.yaw;
                         break;  // don't look any further.
                     } else {
                         // This tag is in the library, but we do not want to track it right now.
@@ -172,17 +191,28 @@ public class RobotAprilTagDriving extends LinearOpMode {
             }
 
             // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
-            if (gamepad1.left_bumper && targetFound) {
+            if ((gamepad1.left_bumper && targetFound) || timeSinceSeen.time(TimeUnit.MILLISECONDS) < 1000) {
 
                 // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                double rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-                double headingError = desiredTag.ftcPose.bearing;
-                double yawError = desiredTag.ftcPose.yaw;
+                double rangeError = (desiredTagRange - DESIRED_DISTANCE) + DISTANCE_F;
+                double headingError;
+                double yawError;
+                if (!(gamepad1.left_bumper && targetFound)) {
+                    headingError = 0;
+                    yawError = 0;
+                } else {
+                    headingError = (desiredTagBearing - DESIRED_BEARING) + BEARING_F;
+                    yawError = (desiredTagYaw - DESIRED_YAW) + YAW_F;
+                }
 
                 // Use the speed and turn "gains" to calculate how we want the robot to move.
                 forward = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
                 turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
                 strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+
+//                forward = DISTANCE_F;
+//                turn = YAW_F;
+//                strafe = BEARING_F;
 
                 telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", forward, strafe, turn);
             } else {
@@ -199,7 +229,10 @@ public class RobotAprilTagDriving extends LinearOpMode {
             telemetry.addData("Forward Power", forward);
             telemetry.addData("Strafe Power", strafe);
             telemetry.addData("Turn Power", turn);
-//            moveRobot(forward, strafe, turn, drive);
+            moveRobot(forward, strafe, turn, drive);
+            if ((int) getRuntime() % 10 == 0) {
+                telemetry.clearAll();
+            }
             telemetry.update();
             sleep(10);
         }
@@ -248,6 +281,7 @@ public class RobotAprilTagDriving extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder().build();
+
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
         // eg: Some typical detection data using a Logitech C920 WebCam

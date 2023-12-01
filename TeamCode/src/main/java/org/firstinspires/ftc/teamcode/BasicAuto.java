@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.PathBuilder;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -22,11 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 
 //@Disabled
+//@Config
 @Autonomous
 public class BasicAuto extends LinearOpMode {
     private AprilTagProcessor aprilTag;
 
     VisionPortal visionPortal;
+
+    public static double turnAmount = 360;
 
     public void initAprilTag() {
 
@@ -72,7 +76,7 @@ public class BasicAuto extends LinearOpMode {
         }
         waitForStart();
         Action a = drive.actionBuilder(drive.pose)
-                .turn(Math.toRadians(90))
+                .turn(Math.toRadians(turnAmount))
                 .build();
         Actions.runBlocking(a);
         while (!isStopRequested() && opModeIsActive()) {

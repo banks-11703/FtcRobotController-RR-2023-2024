@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.tuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Twist2d;
@@ -17,6 +20,7 @@ public class LocalizationTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+            telemetry = FtcDashboard.getInstance().getTelemetry();
 //            drive.backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //            drive.backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //            drive.backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -44,8 +48,9 @@ public class LocalizationTest extends LinearOpMode {
 //                telemetry.addData("par0",drive.frontRight.getCurrentPosition());
 //                telemetry.addData("par1",drive.frontLeft.getCurrentPosition());
 //                telemetry.addData("perp", drive.backRight.getCurrentPosition());
-
                 telemetry.update();
+
+
 
             }
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {
