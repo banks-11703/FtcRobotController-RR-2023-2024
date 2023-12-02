@@ -16,7 +16,9 @@ public class AutoCode extends AutoCodeCommon {
 //        buildTrajectories(drive);
         scorePreloadedFloor(drive);
         driveToBackStage(drive);
-//        scorePreloadedBackdrop(drive);
+//        goToAprilTag(drive);
+        drive = new MecanumDrive(hardwareMap,updatedPose);
+        scorePreloadedBackdrop(drive);
         park(drive);
     }
 }

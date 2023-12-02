@@ -108,11 +108,11 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.intake.setPower(0);
         }
         if (gamepad1.y) {
-            drive.intakeServoL.setPosition(1);
-            drive.intakeServoR.setPosition(0);
-        } else {
             drive.intakeServoL.setPosition(0);
             drive.intakeServoR.setPosition(1);
+        } else {
+            drive.intakeServoL.setPosition(1);
+            drive.intakeServoR.setPosition(0);
         }
         if (a1.isToggled()){
             drive.dropServo.setPosition(dropServoDown);

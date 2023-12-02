@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 //@Disabled
 //@Config
@@ -69,12 +71,13 @@ public class BasicAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(90)));
-        initAprilTag();
-        while(!isStarted() && !isStopRequested()) {
-            telemetryAprilTag();
-            telemetry.update();
-        }
+//        initAprilTag();
+//        while(!isStarted() && !isStopRequested()) {
+//            telemetryAprilTag();
+//            telemetry.update();
+//        }
         waitForStart();
+        waitEx(100000);
         Action a = drive.actionBuilder(drive.pose)
                 .turn(Math.toRadians(turnAmount))
                 .build();
@@ -83,6 +86,12 @@ public class BasicAuto extends LinearOpMode {
 
         }
     }
+    private void waitEx(double milliseconds) {
+        ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        time.reset();
+        while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {}
+    }
+
 }
 
 
