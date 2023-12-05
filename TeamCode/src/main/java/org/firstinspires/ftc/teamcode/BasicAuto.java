@@ -44,6 +44,7 @@ public class BasicAuto extends LinearOpMode {
                 hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
 
     }
+
     public void telemetryAprilTag() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
@@ -67,25 +68,18 @@ public class BasicAuto extends LinearOpMode {
         telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
         telemetry.addLine("RBE = Range, Bearing & Elevation");
 
-    }   // end method telemetryAprilTag()
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(90)));
-//        initAprilTag();
-//        while(!isStarted() && !isStopRequested()) {
-//            telemetryAprilTag();
-//            telemetry.update();
-//        }
         waitForStart();
-        waitEx(100000);
         Action a = drive.actionBuilder(drive.pose)
                 .turn(Math.toRadians(turnAmount))
                 .build();
         Actions.runBlocking(a);
-        while (!isStopRequested() && opModeIsActive()) {
-
-        }
     }
+
     private void waitEx(double milliseconds) {
         ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         time.reset();

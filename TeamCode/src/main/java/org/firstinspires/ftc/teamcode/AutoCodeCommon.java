@@ -122,7 +122,6 @@ public class AutoCodeCommon extends LinearOpMode {
     }
 
     public void setup() {
-//        initAprilTag();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipelineRed = new ColorDetection.RedDeterminationPipeline();
@@ -327,9 +326,7 @@ public class AutoCodeCommon extends LinearOpMode {
 
     }
 
-    public void park(MecanumDrive drive) {
-
-    }
+    public void park(MecanumDrive drive) {}
 
 //    /**
 //     * grabServoPos:
@@ -353,8 +350,7 @@ public class AutoCodeCommon extends LinearOpMode {
     private void waitEx(double milliseconds) {
         ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         time.reset();
-        while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {
-        }
+        while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {}
     }
 
     public void telemetryAprilTag() {
@@ -513,9 +509,9 @@ public class AutoCodeCommon extends LinearOpMode {
                 .build();
     }
 
-    /*
-     Manually set the camera gain and exposure.
-     This can only be called AFTER calling initAprilTag(), and only works for Webcams;
+    /**
+     * Manually set the camera gain and exposure.
+     * This can only be called AFTER calling initAprilTag(), and only works for Webcams;
     */
     private void setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
