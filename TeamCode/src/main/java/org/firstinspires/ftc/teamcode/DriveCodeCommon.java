@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -43,6 +45,8 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx a2 = new GamepadEx();//liftToZero
     GamepadEx b2 = new GamepadEx(4, false);//liftdown
     GamepadEx dpadL1 = new GamepadEx(5, true);//planeLauncher
+    GamepadEx dpadD1 = new GamepadEx();// stack lift
+
     GamepadEx y2 = new GamepadEx();
     public AprilTagProcessor aprilTag;
 
@@ -50,13 +54,14 @@ public class DriveCodeCommon extends LinearOpMode {
     int backSpeed = -200;
     public static int forwardSpeed = 2300;
     public static double dropServoUp = 1;
-    public static double dropServoDown = 0;
+    public static double dropServoDown = 0.05;
     double planeClosed = 0.35;
     double planeOpen = 0.6;
     int planeTargetPos = 0;
     ElapsedTime planeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     boolean liftBusy = false;
+    boolean slamLift = false;
     int[] liftTargetPos = {0, 100, 200, 300};
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -89,6 +94,7 @@ public class DriveCodeCommon extends LinearOpMode {
         a2.updateButton(gamepad2.a);
         b2.updateButton(gamepad2.b);
         y2.updateButton(gamepad2.y);
+        dpadD1.updateButton(gamepad1.dpad_down);
     }
 
     public void rawDriving(MecanumDrive drive) {
@@ -98,7 +104,15 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.backLeft.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * DriveSpeedMod());
 
     }
-
+    public void pidDriving(MecanumDrive drive){
+        drive.setDrivePowers(new PoseVelocity2d(
+                new Vector2d(
+                        -gamepad1.left_stick_y,
+                        -gamepad1.left_stick_x
+                ),
+                -gamepad1.right_stick_x
+        ));
+    }
     public void intake(MecanumDrive drive) {//1
         if (b1.isHeld()) {
             drive.intake.setPower(1);
@@ -114,39 +128,46 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.intakeServoL.setPosition(1);
             drive.intakeServoR.setPosition(0);
         }
-        if (a1.isToggled()){
+        if (dpadD1.isToggled()) {
             drive.dropServo.setPosition(dropServoDown);
-        }else{
+        } else {
             drive.dropServo.setPosition(dropServoUp);
         }
     }
 
     public void lift(MecanumDrive drive) {//2
-        if (a2.isPressed()) {
-            liftBusy = true;
-            drive.leftLift.setTargetPosition(0);
-            drive.rightLift.setTargetPosition(0);
-            drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            drive.leftLift.setPower(1);
-            drive.leftLift.setPower(1);
-        }
-        if (liftBusy) {
-            if (Math.abs(drive.leftLift.getTargetPosition() - drive.leftLift.getCurrentPosition()) + Math.abs(drive.rightLift.getTargetPosition() - drive.rightLift.getCurrentPosition()) <= 50) {
-                liftBusy = false;
-            }
+        if (gamepad2.dpad_down) slamLift = true;
+        if (slamLift && ((gamepad2.right_trigger + gamepad2.left_trigger >= 0.1) || gamepad2.a)) {
+            slamLift = false;
+        } else if (slamLift) {
+            drive.leftLift.setPower(-0.95);
+            drive.rightLift.setPower(-0.95);
         } else {
-            drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if (drive.leftLift.getCurrentPosition() < 1930) {
-                drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-                drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            if (a2.isPressed()) {
+                liftBusy = true;
+                drive.leftLift.setTargetPosition(0);
+                drive.rightLift.setTargetPosition(0);
+                drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                drive.leftLift.setPower(1);
+                drive.leftLift.setPower(1);
+            }
+            if (liftBusy) {
+                if (Math.abs(drive.leftLift.getTargetPosition() - drive.leftLift.getCurrentPosition()) + Math.abs(drive.rightLift.getTargetPosition() - drive.rightLift.getCurrentPosition()) <= 50) {
+                    liftBusy = false;
+                }
             } else {
-                drive.leftLift.setPower(-gamepad2.left_trigger);
-                drive.rightLift.setPower(-gamepad2.left_trigger);
+                drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                if (drive.leftLift.getCurrentPosition() < 1930) {
+                    drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+                    drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+                } else {
+                    drive.leftLift.setPower(-gamepad2.left_trigger);
+                    drive.rightLift.setPower(-gamepad2.left_trigger);
+                }
             }
         }
-
 
 //        liftModSum += gamepad1.right_trigger - gamepad1.left_trigger;
 //        if (gamepad1.right_trigger + gamepad1.left_trigger <= 0.01) {
