@@ -198,6 +198,9 @@ public class AutoCodeCommon extends LinearOpMode {
             }
 
             telemetry.update();
+            if(getRuntime()%10 == 0) {
+                telemetry.clearAll();
+            }
         }
 
         if (Team() == 0) {
@@ -261,8 +264,8 @@ public class AutoCodeCommon extends LinearOpMode {
         scoreClose = new Vector2d(-36 + xMod, -60 * yMod);
         scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
         scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
-        spikePosUpper = new Vector2d(-36 + xMod, -14 * yMod);
-        spikePosLower = new Vector2d(-36 + xMod, -32 * yMod);
+        spikePosUpper = new Vector2d(-37 + xMod, -14 * yMod);
+        spikePosLower = new Vector2d(-37 + xMod, -32 * yMod);
     }
 
     public void buildTrajectories(MecanumDrive drive) {
@@ -277,15 +280,9 @@ public class AutoCodeCommon extends LinearOpMode {
 
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5 * yMod), finalStart.heading)
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6 * yMod), Math.toRadians(-90 * randomizationResult + 180 + headingMod))
                 .build()
         );
-        drive.updatePoseEstimate();
-        Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .turn(Math.toRadians(90 * randomizationResult + 90))
-                .build()
-        );
-        drive.updatePoseEstimate();
-        waitEx(1000);
 
         if (randomizationResult == 1) {
             Actions.runBlocking(drive.actionBuilder(drive.pose)
@@ -326,7 +323,9 @@ public class AutoCodeCommon extends LinearOpMode {
 
     }
 
-    public void park(MecanumDrive drive) {}
+    public void park(MecanumDrive drive) {
+
+    }
 
 //    /**
 //     * grabServoPos:
