@@ -92,7 +92,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
     double DriveSpeedMod() {
         if (gamepad1.left_trigger + gamepad1.right_trigger > 0.1) {
-            return 0.5;
+            return 2;
         } else {
             return 1;
         }
