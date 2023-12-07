@@ -154,6 +154,7 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.backLeft.setPower((-gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x) * DriveSpeedMod());
 
     }
+
     public void aprilTagDriving(MecanumDrive drive){
         targetFound = false;
         desiredTag = null;
@@ -242,7 +243,6 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.update();
     }
 
-
     public void pidDriving(MecanumDrive drive){
         drive.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
@@ -252,6 +252,7 @@ public class DriveCodeCommon extends LinearOpMode {
                 -gamepad1.right_stick_x
         ));
     }
+
     public void intake(MecanumDrive drive) {//1
         if (b1.isHeld()) {
             drive.intake.setPower(1);

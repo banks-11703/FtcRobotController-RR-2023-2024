@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -268,8 +269,13 @@ public class AutoCodeCommon extends LinearOpMode {
         spikePosLower = new Vector2d(-37 + xMod, -32 * yMod);
     }
 
-    public void buildTrajectories(MecanumDrive drive) {
-
+    public void liftSetup(MecanumDrive drive) {
+        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.leftLift.setTargetPosition(0);
+        drive.rightLift.setTargetPosition(0);
+        drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void scorePreloadedFloor(MecanumDrive drive) {
@@ -277,7 +283,7 @@ public class AutoCodeCommon extends LinearOpMode {
             waitEx(1000000);
         }
 
-
+        lifts(100,drive);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5 * yMod), finalStart.heading)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6 * yMod), Math.toRadians(-90 * randomizationResult + 180 + headingMod))
@@ -325,6 +331,13 @@ public class AutoCodeCommon extends LinearOpMode {
 
     public void park(MecanumDrive drive) {
 
+    }
+
+    private void lifts(int pos,MecanumDrive drive) {
+        drive.leftLift.setTargetPosition(pos);
+        drive.rightLift.setTargetPosition(pos);
+        drive.leftLift.setPower(0.5);
+        drive.rightLift.setPower(0.5);
     }
 
 //    /**
