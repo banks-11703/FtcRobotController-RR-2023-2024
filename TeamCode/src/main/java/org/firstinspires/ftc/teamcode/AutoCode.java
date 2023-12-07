@@ -13,7 +13,7 @@ public class AutoCode extends AutoCodeCommon {
         initialization();
         MecanumDrive drive = new MecanumDrive(hardwareMap, finalStart);
         waitForStart();
-//        buildTrajectories(drive);
+        liftSetup(drive);
         scorePreloadedFloor(drive);
         driveToBackStage(drive);
 //        goToAprilTag(drive);
