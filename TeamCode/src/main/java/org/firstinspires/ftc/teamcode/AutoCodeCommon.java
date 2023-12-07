@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -94,18 +92,22 @@ public class AutoCodeCommon extends LinearOpMode {
     int xMod = 0;
     int headingMod = 0;
 
+    double flipperScore = 0.33;
+    double flipperIntake = 0.86;
+    double flipperHold = 0.6;
+
     final Pose2d startRedLeft = new Pose2d(-36, -63.9375, Math.toRadians(-90));
     final Pose2d startRedRight = new Pose2d(36, -63.9375, Math.toRadians(-90));
     final Pose2d startBlueLeft = new Pose2d(36, 63.9375, Math.toRadians(90));
     final Pose2d startBlueRight = new Pose2d(-36, 63.9375, Math.toRadians(90));
     Pose2d finalStart = new Pose2d(0, 0, 0);
     Pose2d updatedPose = new Pose2d(0, 0, 0);
-    final Vector2d backdropPos1 = new Vector2d(25, 42);
-    final Vector2d backdropPos2 = new Vector2d(25, 36);
-    final Vector2d backdropPos3 = new Vector2d(25, 30);
-    final Vector2d backdropPos4 = new Vector2d(25, -30);
-    final Vector2d backdropPos5 = new Vector2d(25, -36);
-    final Vector2d backdropPos6 = new Vector2d(25, -42);
+    final Vector2d backdropPos1 = new Vector2d(42, 42);
+    final Vector2d backdropPos2 = new Vector2d(42, 36);
+    final Vector2d backdropPos3 = new Vector2d(42, 30);
+    final Vector2d backdropPos4 = new Vector2d(42, -36);
+    final Vector2d backdropPos5 = new Vector2d(42, -36);
+    final Vector2d backdropPos6 = new Vector2d(42, -42);
     Vector2d finalBackdropPos = new Vector2d(0, 0);
 
     Vector2d parkLower;
@@ -164,9 +166,9 @@ public class AutoCodeCommon extends LinearOpMode {
                 telemetry.addData("Team", "Red");
             }
             if (Side() == 0) {
-                telemetry.addData("Side", "BackStage");
-            } else {
                 telemetry.addData("Side", "FrontStage");
+            } else {
+                telemetry.addData("Side", "BackStage");
             }
 
             if (lockedIn) {
@@ -199,7 +201,7 @@ public class AutoCodeCommon extends LinearOpMode {
             }
 
             telemetry.update();
-            if(getRuntime()%10 == 0) {
+            if (getRuntime() % 10 == 0) {
                 telemetry.clearAll();
             }
         }
@@ -265,8 +267,8 @@ public class AutoCodeCommon extends LinearOpMode {
         scoreClose = new Vector2d(-36 + xMod, -60 * yMod);
         scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
         scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
-        spikePosUpper = new Vector2d(-37 + xMod, -14 * yMod);
-        spikePosLower = new Vector2d(-37 + xMod, -32 * yMod);
+        spikePosUpper = new Vector2d(-37 + xMod, -27 * yMod);
+        spikePosLower = new Vector2d(-37 + xMod, -35 * yMod);
     }
 
     public void liftSetup(MecanumDrive drive) {
@@ -276,6 +278,8 @@ public class AutoCodeCommon extends LinearOpMode {
         drive.rightLift.setTargetPosition(0);
         drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void scorePreloadedFloor(MecanumDrive drive) {
@@ -283,57 +287,92 @@ public class AutoCodeCommon extends LinearOpMode {
             waitEx(1000000);
         }
 
-        lifts(100,drive);
+        lifts(200, drive);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5 * yMod), finalStart.heading)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6 * yMod), Math.toRadians(-90 * randomizationResult + 180 + headingMod))
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6 * yMod), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
                 .build()
         );
-
         if (randomizationResult == 1) {
             Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(spikePosUpper, Math.toRadians(-90 * randomizationResult + 180 + headingMod))
+                    .strafeToLinearHeading(spikePosUpper, Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+            drive.flipper.setPosition(flipperHold);
+            waitEx(1000);
+            drive.intake.setPower(-1);
+            waitEx(1000);
+            drive.flipper.setPosition(flipperIntake);
+            drive.intake.setPower(0);
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -12 * yMod), drive.pose.heading)
                     .build()
             );
             drive.updatePoseEstimate();
         } else {
             Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(spikePosLower, Math.toRadians(-90 * randomizationResult + 180 + headingMod))
+                    .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
                     .build());
             drive.updatePoseEstimate();
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+            drive.flipper.setPosition(flipperHold);
+            waitEx(1000);
+            drive.intake.setPower(-1);
+            waitEx(1000);
+            drive.flipper.setPosition(flipperIntake);
+            drive.intake.setPower(0);
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
+                    .build());
+            drive.updatePoseEstimate();
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -12 * yMod), Math.toRadians(-90 + headingMod))
+                    .build()
+            );
+            drive.updatePoseEstimate();
         }
-        waitEx(100000);
     }
 
     public void driveToBackStage(MecanumDrive drive) {
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -12 * yMod), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -12 * yMod).plus(new Vector2d(1, 0)), Math.toRadians(0))
                 .build()
         );
         drive.updatePoseEstimate();
-
+        lifts(100, drive);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(36, -12 * yMod), new Rotation2d(1.0, 0.0))
+                .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -12 * yMod).plus(new Vector2d(2, 0)), Math.toRadians(-15))
                 .build()
         );
         drive.updatePoseEstimate();
+        Actions.runBlocking(drive.actionBuilder(drive.pose)
+                .strafeToLinearHeading(new Vector2d(36, -12 * yMod), Math.toRadians(-15))
+                .build()
+        );
+        drive.updatePoseEstimate();
+        telemetry.addData("x", drive.pose.position.x);
+        telemetry.addData("y", drive.pose.position.y);
+        telemetry.addData("heading", drive.pose.heading);
+        telemetry.update();
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(finalBackdropPos, 0)
                 .build()
         );
         drive.updatePoseEstimate();
+        telemetry.addData("Backdrop 4",backdropPos4);
+        telemetry.update();
     }
 
-    public void scorePreloadedBackdrop(MecanumDrive drive) {
+    public void scorePreloadedBackdrop(MecanumDrive drive) {}
 
+    public void park(MecanumDrive drive) {}
 
-    }
-
-    public void park(MecanumDrive drive) {
-
-    }
-
-    private void lifts(int pos,MecanumDrive drive) {
+    private void lifts(int pos, MecanumDrive drive) {
         drive.leftLift.setTargetPosition(pos);
         drive.rightLift.setTargetPosition(pos);
         drive.leftLift.setPower(0.5);
@@ -362,7 +401,8 @@ public class AutoCodeCommon extends LinearOpMode {
     private void waitEx(double milliseconds) {
         ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         time.reset();
-        while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {}
+        while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {
+        }
     }
 
     public void telemetryAprilTag() {
@@ -524,7 +564,7 @@ public class AutoCodeCommon extends LinearOpMode {
     /**
      * Manually set the camera gain and exposure.
      * This can only be called AFTER calling initAprilTag(), and only works for Webcams;
-    */
+     */
     private void setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
 

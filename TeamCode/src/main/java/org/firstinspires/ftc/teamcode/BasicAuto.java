@@ -72,12 +72,20 @@ public class BasicAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(90)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         waitForStart();
-        Action a = drive.actionBuilder(drive.pose)
-                .turn(Math.toRadians(turnAmount))
-                .build();
-        Actions.runBlocking(a);
+        while(opModeIsActive() && !isStopRequested()) {
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .turn(Math.toRadians(-90))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .turn(Math.toRadians(90))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+        }
     }
 
     private void waitEx(double milliseconds) {
