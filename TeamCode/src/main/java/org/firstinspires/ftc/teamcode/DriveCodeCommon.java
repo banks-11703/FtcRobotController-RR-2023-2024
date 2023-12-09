@@ -5,7 +5,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -26,30 +28,31 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Config
-
+//@TeleOp
+//@Disabled
 public class DriveCodeCommon extends LinearOpMode {
 
     // Adjust these numbers to suit your robot.
-    public static double DESIRED_DISTANCE = 8; //  this is how close the camera should get to the target (inches)
-    public static double DESIRED_BEARING = 0;
-    public static double DESIRED_YAW = -4;
+    public double DESIRED_DISTANCE = 8; //  this is how close the camera should get to the target (inches)
+    public double DESIRED_BEARING = 0;
+    public double DESIRED_YAW = -4;
 
-    public static double DISTANCE_F = 0.075;
-    public static double BEARING_F = 0.2;
-    public static double YAW_F = 0.10;
+    public double DISTANCE_F = 0.075;
+    public double BEARING_F = 0.2;
+    public double YAW_F = 0.10;
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    public static double SPEED_GAIN = 0.04;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    public static double STRAFE_GAIN = 0.04;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    public static double TURN_GAIN = 0.02;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    public double SPEED_GAIN = 0.04;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    public double STRAFE_GAIN = 0.04;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    public double TURN_GAIN = 0.02;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MAX_AUTO_SPEED = 0.3;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE = 0.3;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
 
-    private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
+    private final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     public static int DESIRED_TAG_ID = 5;     // Choose the tag you want to approach or set to -1 for ANY tag.
     public static int DESIRED_TAG_ID2 = 2;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
@@ -78,8 +81,8 @@ public class DriveCodeCommon extends LinearOpMode {
     public static int forwardSpeed = 2300;
     public static double dropServoUp = 1;
     public static double dropServoDown = 0.05;
-    double planeClosed = 0.35;
-    double planeOpen = 0.6;
+    public static double planeClosed = 0.35;
+    public static double planeOpen = 0.75;
     int planeTargetPos = 0;
     ElapsedTime planeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
@@ -145,7 +148,7 @@ public class DriveCodeCommon extends LinearOpMode {
         a2.updateButton(gamepad2.a);
         b2.updateButton(gamepad2.b);
         y2.updateButton(gamepad2.y);
-        dpadD1.updateButton(gamepad1.dpad_down);
+//        dpadD1.updateButton(gamepad1.dpad_down);
     }
 
     public void rawDriving(MecanumDrive drive) {
@@ -241,7 +244,6 @@ public class DriveCodeCommon extends LinearOpMode {
         if ((int) getRuntime() % 10 == 0) {
             telemetry.clearAll();
         }
-        telemetry.update();
     }
 
     public void pidDriving(MecanumDrive drive){
@@ -332,6 +334,12 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void launcher(MecanumDrive drive) {//2
+//        dpadL1.updateButton(gamepad1.dpad_left);
+//        if(dpadL1.isHeld()) {
+//            drive.launchLatch.setPosition(planeOpen);
+//        } else {
+//            drive.launchLatch.setPosition(planeClosed);
+//        }
         switch (dpadL1.getCycle()) {
             case 0:
                 drive.planeLauncher.setVelocity(0);
@@ -359,7 +367,7 @@ public class DriveCodeCommon extends LinearOpMode {
                 break;
             case 3:
                 drive.planeLauncher.setVelocity(forwardSpeed);
-                if (Math.abs(drive.planeLauncher.getVelocity() - forwardSpeed) < 20) {
+                if (Math.abs(drive.planeLauncher.getVelocity() - forwardSpeed) < 20 || gamepad1.dpad_left) {
                     planeTimer.reset();
                     dpadL1.setToggle(dpadL1.getCycle() + 1);
                 }
@@ -373,6 +381,7 @@ public class DriveCodeCommon extends LinearOpMode {
                 break;
         }
     }
+
     public void telemetry(MecanumDrive drive) {
         telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
         telemetry.addData("Servo Pos: ", drive.launchLatch.getPosition());
@@ -380,11 +389,8 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
         telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
         telemetry.update();
-        dashboardTelemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
-        dashboardTelemetry.addData("Servo Pos: ", drive.launchLatch.getPosition());
-        dashboardTelemetry.addData("Launcher Power; ", drive.planeLauncher.getPower());
-        dashboardTelemetry.update();
     }
+
     /**
      * Move robot according to desired axes motions
      * <p>

@@ -20,6 +20,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 @TeleOp
 //@Config
+@Disabled
 public class ColorDetection extends LinearOpMode {
     OpenCvCamera camera;
     public RedDeterminationPipeline pipelineRed;

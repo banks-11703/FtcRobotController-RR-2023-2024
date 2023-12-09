@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
-@Config
+//@Config
 public class DriveCode extends DriveCodeCommon {
 
 

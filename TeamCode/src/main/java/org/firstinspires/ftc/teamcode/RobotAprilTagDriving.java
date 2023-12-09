@@ -93,6 +93,7 @@ import java.util.concurrent.TimeUnit;
  */
 @TeleOp
 //@Config
+@Disabled
 public class RobotAprilTagDriving extends LinearOpMode {
     // Adjust these numbers to suit your robot.
     public static double DESIRED_DISTANCE = 9; //  this is how close the camera should get to the target (inches)
