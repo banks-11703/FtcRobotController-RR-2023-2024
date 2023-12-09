@@ -11,12 +11,14 @@ public class AutoCode extends AutoCodeCommon {
     public void runOpMode() throws InterruptedException {
         setup();
         initialization();
+        initAprilTag();
         MecanumDrive drive = new MecanumDrive(hardwareMap, finalStart);
+        setManualExposure(6, 250);
         waitForStart();
         liftSetup(drive);
         scorePreloadedFloor(drive);
         driveToBackStage(drive);
-//        goToAprilTag(drive);
+        goToAprilTag(drive);
         drive = new MecanumDrive(hardwareMap,updatedPose);
         scorePreloadedBackdrop(drive);
         park(drive);

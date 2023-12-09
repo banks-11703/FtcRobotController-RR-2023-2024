@@ -110,7 +110,7 @@ public class ColorDetection extends LinearOpMode {
      */
     public static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,840);
     public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(615,825);
-    public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1120,840);
+    public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1115,840);
     public static int REGION_WIDTH = 50;
     public static int REGION_HEIGHT = 50;
 
