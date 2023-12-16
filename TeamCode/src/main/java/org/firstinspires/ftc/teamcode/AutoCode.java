@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous
 public class AutoCode extends AutoCodeCommon {
@@ -16,11 +14,8 @@ public class AutoCode extends AutoCodeCommon {
         setManualExposure(6, 250);
         waitForStart();
         liftSetup(drive);
-        scorePreloadedFloor(drive);
-        driveToBackStage(drive);
-        goToAprilTag(drive);
-        drive = new MecanumDrive(hardwareMap,updatedPose);
-        scorePreloadedBackdrop(drive);
+        runAutoPreloaded(drive);
+        drive = new MecanumDrive(hardwareMap, updatedPose);
         park(drive);
     }
 }
