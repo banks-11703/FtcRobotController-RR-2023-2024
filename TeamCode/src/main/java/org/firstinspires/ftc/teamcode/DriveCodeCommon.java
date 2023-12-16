@@ -102,6 +102,8 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
+    public static double forwardIntakeSpeed = -1;
+
     GamepadEx a1 = new GamepadEx();
     GamepadEx x1 = new GamepadEx();//intake
     GamepadEx b1 = new GamepadEx();//intake out
@@ -111,6 +113,7 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx b2 = new GamepadEx();//adjust
     GamepadEx dpadL1 = new GamepadEx(5, true);//planeLauncher
     GamepadEx dpadD1 = new GamepadEx();// stack lift
+    GamepadEx rBumper1 = new GamepadEx();
 
     GamepadEx y2 = new GamepadEx();
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -148,6 +151,7 @@ public class DriveCodeCommon extends LinearOpMode {
         a2.updateButton(gamepad2.a);
         b2.updateButton(gamepad2.b);
         y2.updateButton(gamepad2.y);
+//        rBumper1.updateButton(gamepad1.right_bumper);
 //        dpadD1.updateButton(gamepad1.dpad_down);
     }
 
@@ -159,7 +163,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
     }
 
-    public void aprilTagDriving(MecanumDrive drive){
+    public void aprilTagDriving(MecanumDrive drive) {
         targetFound = false;
         desiredTag = null;
 
@@ -240,13 +244,13 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("Forward Power", forward);
         telemetry.addData("Strafe Power", strafe);
         telemetry.addData("Turn Power", turn);
-        moveRobot(forward, strafe, turn, drive);
+        moveRobot(forward, strafe, turn, rBumper1.isToggled(), drive);
         if ((int) getRuntime() % 10 == 0) {
             telemetry.clearAll();
         }
     }
 
-    public void pidDriving(MecanumDrive drive){
+    public void pidDriving(MecanumDrive drive) {
         drive.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
                         -gamepad1.left_stick_y,
@@ -260,7 +264,7 @@ public class DriveCodeCommon extends LinearOpMode {
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (x1.isToggled()) {
-            drive.intake.setPower(-1);
+            drive.intake.setPower(forwardIntakeSpeed);
         } else {
             drive.intake.setPower(0);
         }
@@ -302,12 +306,15 @@ public class DriveCodeCommon extends LinearOpMode {
             } else {
                 drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                if (drive.leftLift.getCurrentPosition() < 1930) {
+                if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 4) {
                     drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
                     drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-                } else {
+                } else if(drive.leftLift.getCurrentPosition() > 4) {
                     drive.leftLift.setPower(-gamepad2.left_trigger);
                     drive.rightLift.setPower(-gamepad2.left_trigger);
+                }else{
+                    drive.leftLift.setPower(gamepad2.right_trigger);
+                    drive.rightLift.setPower(gamepad2.right_trigger);
                 }
             }
         }
@@ -326,9 +333,9 @@ public class DriveCodeCommon extends LinearOpMode {
     public void outake(MecanumDrive drive) {//2
         if (x2.isHeld()) {
             drive.flipper.setPosition(flipperscore);
-        }else if (b2.isHeld()){
+        } else if (b2.isHeld()) {
             drive.flipper.setPosition(flipperadjust);
-        }else {
+        } else {
             drive.flipper.setPosition(flipperintake);
         }
     }
@@ -400,12 +407,16 @@ public class DriveCodeCommon extends LinearOpMode {
      * <p>
      * Positive Yaw is counter-clockwise
      */
-    public void moveRobot(double x, double y, double yaw, MecanumDrive drive) {
+    public void moveRobot(double x, double y, double yaw, boolean reversedDriving, MecanumDrive drive) {
         // Calculate wheel powers.
-        double leftFrontPower = x - y - yaw;
-        double rightFrontPower = x + y + yaw;
-        double leftBackPower = x + y - yaw;
-        double rightBackPower = x - y + yaw;
+        int powerMod = 1;
+        if (reversedDriving) {
+            powerMod = -1;
+        }
+        double leftFrontPower = powerMod * (x - y - yaw);
+        double rightFrontPower = powerMod * (x + y + yaw);
+        double leftBackPower = powerMod * (x + y - yaw);
+        double rightBackPower = powerMod * (x - y + yaw);
 
         // Normalize wheel powers to be less than 1.0
         double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
