@@ -74,7 +74,7 @@ public class DriveCodeCommon extends LinearOpMode {
 
     //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
     double[] latch = {0.74, 0.79, 0.9};
-    public static double flipperscore = 0.33;
+    public static double flipperscore = 0.32;
     public static double flipperintake = 0.86;
     public static double flipperadjust = 0.2;
     int backSpeed = -200;
