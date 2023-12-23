@@ -289,34 +289,21 @@ public class DriveCodeCommon extends LinearOpMode {
         } else if (slamLift) {
             drive.leftLift.setPower(-0.95);
             drive.rightLift.setPower(-0.95);
-        } else {
-            if (a2.isPressed()) {
-                liftBusy = true;
-                drive.leftLift.setTargetPosition(0);
-                drive.rightLift.setTargetPosition(0);
-                drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                drive.leftLift.setPower(1);
-                drive.leftLift.setPower(1);
-            }
-            if (liftBusy) {
-                if (Math.abs(drive.leftLift.getTargetPosition() - drive.leftLift.getCurrentPosition()) + Math.abs(drive.rightLift.getTargetPosition() - drive.rightLift.getCurrentPosition()) <= 50) {
-                    liftBusy = false;
-                }
-            } else {
+        }
                 drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 4) {
+                if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 0) {
                     drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
                     drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
                 } else if(drive.leftLift.getCurrentPosition() > 4) {
-                    drive.leftLift.setPower(-gamepad2.left_trigger);
-                    drive.rightLift.setPower(-gamepad2.left_trigger);
-                }else{
+
                     drive.leftLift.setPower(gamepad2.right_trigger);
                     drive.rightLift.setPower(gamepad2.right_trigger);
+                }else{
+                    drive.leftLift.setPower(-gamepad2.left_trigger);
+                    drive.rightLift.setPower(-gamepad2.left_trigger);
                 }
-            }
+
         }
 
 //        liftModSum += gamepad1.right_trigger - gamepad1.left_trigger;
