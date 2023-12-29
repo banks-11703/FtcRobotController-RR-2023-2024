@@ -290,32 +290,22 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.leftLift.setPower(-0.95);
             drive.rightLift.setPower(-0.95);
         }
-                drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 0) {
-                    drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-                    drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-                } else if(drive.leftLift.getCurrentPosition() > 4) {
+        drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 0) {
+            drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+        } else if (drive.leftLift.getCurrentPosition() > 4) {
 
-                    drive.leftLift.setPower(gamepad2.right_trigger);
-                    drive.rightLift.setPower(gamepad2.right_trigger);
-                }else{
-                    drive.leftLift.setPower(-gamepad2.left_trigger);
-                    drive.rightLift.setPower(-gamepad2.left_trigger);
-                }
-
+            drive.leftLift.setPower(gamepad2.right_trigger);
+            drive.rightLift.setPower(gamepad2.right_trigger);
+        } else {
+            drive.leftLift.setPower(-gamepad2.left_trigger);
+            drive.rightLift.setPower(-gamepad2.left_trigger);
         }
 
-//        liftModSum += gamepad1.right_trigger - gamepad1.left_trigger;
-//        if (gamepad1.right_trigger + gamepad1.left_trigger <= 0.01) {
-//            liftModSum = 0;
-//        }
-//        finalLiftPos = Range.clip(liftTargetPos[a1.getCycle()] + Math.toIntExact(Math.round(liftModSum)), 0, 20000);
-//        drive.leftLift.setPower(1);
-//        drive.rightLift.setPower(1);
-//        drive.leftLift.setTargetPosition(finalLiftPos);
-//        drive.rightLift.setTargetPosition(finalLiftPos);
     }
+
 
     public void outake(MecanumDrive drive) {//2
         if (x2.isHeld()) {
