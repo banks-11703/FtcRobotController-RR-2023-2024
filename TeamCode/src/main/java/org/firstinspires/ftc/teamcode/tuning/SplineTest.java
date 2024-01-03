@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.TankDrive;
 import java.math.MathContext;
 
 @TeleOp
-@Disabled
+//@Disabled
 public final class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

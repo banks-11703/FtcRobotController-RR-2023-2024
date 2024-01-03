@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Disabled
+//@Disabled
 //@Config
 @Autonomous
 public class BasicAuto extends LinearOpMode {
