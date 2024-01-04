@@ -132,8 +132,8 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.rightLift.setTargetPosition(liftTargetPos[0]);
         drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        drive.planeLauncher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        drive.planeLauncher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         // Initialize the Apriltag Detection process
@@ -295,8 +295,7 @@ public class DriveCodeCommon extends LinearOpMode {
         if (drive.leftLift.getCurrentPosition() < 1930 && drive.rightLift.getCurrentPosition() > 0) {
             drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
             drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-        } else if (drive.leftLift.getCurrentPosition() > 4) {
-
+        } else if (drive.leftLift.getCurrentPosition() < 1930) {
             drive.leftLift.setPower(gamepad2.right_trigger);
             drive.rightLift.setPower(gamepad2.right_trigger);
         } else {
@@ -324,52 +323,52 @@ public class DriveCodeCommon extends LinearOpMode {
 //        } else {
 //            drive.launchLatch.setPosition(planeClosed);
 //        }
-        switch (dpadL1.getCycle()) {
-            case 0:
-                drive.planeLauncher.setVelocity(0);
-                drive.launchLatch.setPosition(planeClosed);
-//                drive.planeLauncher.setTargetPosition(planeTargetPos);
-//                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                drive.planeLauncher.setPower(1);
-                dpadL1.updateButton(gamepad1.dpad_left);
-                planeTimer.reset();
-                break;
-            case 1:
-                drive.planeLauncher.setPower(0);
-                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                if (planeTimer.milliseconds() > 500) {
-                    planeTimer.reset();
-                    dpadL1.setToggle(dpadL1.getCycle() + 1);
-                }
-                break;
-            case 2:
-                drive.planeLauncher.setVelocity(backSpeed);
-                if (planeTimer.milliseconds() > 1000) {
-                    planeTimer.reset();
-                    dpadL1.setToggle(dpadL1.getCycle() + 1);
-                }
-                break;
-            case 3:
-                drive.planeLauncher.setVelocity(forwardSpeed);
-                if (Math.abs(drive.planeLauncher.getVelocity() - forwardSpeed) < 20 || gamepad1.dpad_left) {
-                    planeTimer.reset();
-                    dpadL1.setToggle(dpadL1.getCycle() + 1);
-                }
-                break;
-            case 4:
-                drive.launchLatch.setPosition(planeOpen);
-                planeTargetPos = drive.planeLauncher.getCurrentPosition();
-                if (planeTimer.milliseconds() > 500) {
-                    dpadL1.setToggle(0);
-                }
-                break;
-        }
+//        switch (dpadL1.getCycle()) {
+//            case 0:
+//                drive.planeLauncher.setVelocity(0);
+//                drive.launchLatch.setPosition(planeClosed);
+////                drive.planeLauncher.setTargetPosition(planeTargetPos);
+////                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+////                drive.planeLauncher.setPower(1);
+//                dpadL1.updateButton(gamepad1.dpad_left);
+//                planeTimer.reset();
+//                break;
+//            case 1:
+//                drive.planeLauncher.setPower(0);
+//                drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//                if (planeTimer.milliseconds() > 500) {
+//                    planeTimer.reset();
+//                    dpadL1.setToggle(dpadL1.getCycle() + 1);
+//                }
+//                break;
+//            case 2:
+//                drive.planeLauncher.setVelocity(backSpeed);
+//                if (planeTimer.milliseconds() > 1000) {
+//                    planeTimer.reset();
+//                    dpadL1.setToggle(dpadL1.getCycle() + 1);
+//                }
+//                break;
+//            case 3:
+//                drive.planeLauncher.setVelocity(forwardSpeed);
+//                if (Math.abs(drive.planeLauncher.getVelocity() - forwardSpeed) < 20 || gamepad1.dpad_left) {
+//                    planeTimer.reset();
+//                    dpadL1.setToggle(dpadL1.getCycle() + 1);
+//                }
+//                break;
+//            case 4:
+//                drive.launchLatch.setPosition(planeOpen);
+//                planeTargetPos = drive.planeLauncher.getCurrentPosition();
+//                if (planeTimer.milliseconds() > 500) {
+//                    dpadL1.setToggle(0);
+//                }
+//                break;
+//        }
     }
 
     public void telemetry(MecanumDrive drive) {
-        telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
+//        telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
         telemetry.addData("Servo Pos: ", drive.launchLatch.getPosition());
-        telemetry.addData("Launcher Power; ", drive.planeLauncher.getPower());
+//        telemetry.addData("Launcher Power; ", drive.planeLauncher.getPower());
         telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
         telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
         telemetry.update();
