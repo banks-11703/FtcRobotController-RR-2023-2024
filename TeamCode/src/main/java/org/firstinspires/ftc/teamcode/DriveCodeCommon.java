@@ -447,9 +447,9 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
-    /*
-     Manually set the camera gain and exposure.
-     This can only be called AFTER calling initAprilTag(), and only works for Webcams;
+    /**
+     * Manually set the camera gain and exposure.
+     * This can only be called AFTER calling initAprilTag(), and only works for Webcams;
     */
     public void setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
