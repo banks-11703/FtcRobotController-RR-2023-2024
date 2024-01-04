@@ -103,7 +103,7 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
-    public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake, planeLauncher;
+    public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
     public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo;
 
     public final VoltageSensor voltageSensor;
@@ -194,7 +194,7 @@ public final class MecanumDrive {
         leftLift = hardwareMap.get(DcMotorEx.class,"ll");
         rightLift = hardwareMap.get(DcMotorEx.class,"rl");
         intake = hardwareMap.get(DcMotorEx.class, "i");
-        planeLauncher = hardwareMap.get(DcMotorEx.class,"pl");
+//        planeLauncher = hardwareMap.get(DcMotorEx.class,"pl");
         outakeLatch = hardwareMap.get(Servo.class,"o");
         flipper = hardwareMap.get(Servo.class,"f");
         launchLatch = hardwareMap.get(Servo.class,"l");
@@ -208,7 +208,7 @@ public final class MecanumDrive {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        planeLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        planeLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -216,7 +216,7 @@ public final class MecanumDrive {
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
         rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
-        planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
+//        planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
