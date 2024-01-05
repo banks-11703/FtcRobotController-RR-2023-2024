@@ -60,13 +60,14 @@ public final class MecanumDrive {
     public static class Params {
         // drive model parameters
         public double inPerTick = 0.000541436838009;//72/132979.5
-        public double lateralInPerTick = 0.0003997502408314442;//0.0003525951292547476
-        public double trackWidthTicks = 23521.295120576517;//26507.18151414811
+        public double lateralInPerTick = 0.0003924855623120363;//0.0003997502408314442
+        public double trackWidthTicks = 23712.567718629227;//23521.295120576517
 
         // feedforward parameters (in tick units)
-        public double kS = 1.6517257573171897;//1.2902252926499127
-        public double kV = 0.00007908374158059678;//0.00007811041597494084
-        public double kA = 0.000015;
+        public double kS = 1.547605471241234;//1.6517257573171897
+        public double kV = 0.00007806788335961366;//0.00007908374158059678
+
+        public double kA = 0.00002;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -78,13 +79,13 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.75;
-        public double lateralGain = 0.75;
-        public double headingGain = 0.75; // shared with turn
+        public double axialGain      = 0.75;
+        public double lateralGain    = 0.75;
+        public double headingGain    = 0.9; // shared with turn
 
-        public double axialVelGain = 0.75;
-        public double lateralVelGain = 0.75;
-        public double headingVelGain = 0.75; // shared with turn
+        public double axialVelGain   = 0.1;
+        public double lateralVelGain = 0.1;
+        public double headingVelGain = 0.1; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -239,7 +240,7 @@ public final class MecanumDrive {
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
         imu.initialize(parameters);
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();

@@ -19,8 +19,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @TeleOp
-//@Config
-@Disabled
+@Config
+//@Disabled
 public class ColorDetection extends LinearOpMode {
     OpenCvCamera camera;
     public RedDeterminationPipeline pipelineRed;
@@ -109,9 +109,9 @@ public class ColorDetection extends LinearOpMode {
     /*
      * The core values which define the location and size of the sample regions
      */
-    public static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,840);
-    public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(615,825);
-    public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1115,840);
+    public static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(95,210);
+    public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(615,210);
+    public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1175,210);
     public static int REGION_WIDTH = 50;
     public static int REGION_HEIGHT = 50;
 

@@ -18,21 +18,41 @@ public final class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
-            MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+            MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(12, 60, Math.toRadians(-90)));
 
             waitForStart();
 
-            while(opModeIsActive() && !isStopRequested()) {
-                Actions.runBlocking(
-                        drive.actionBuilder(drive.pose)
-                                .strafeToLinearHeading(new Vector2d(36, 36),Math.toRadians(0))
-//                                .turnTo(Math.toRadians(90))
-                                .strafeToLinearHeading(new Vector2d(48, 0),Math.toRadians(0))
-                                .turnTo(drive.pose.heading.plus(Math.toRadians(90)))
-                                .strafeToLinearHeading(new Vector2d(0,0),Math.toRadians(0))
-//                                .turnTo(Math.toRadians(0))
-                                .build());
+            while (opModeIsActive() && !isStopRequested()) {
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(new Vector2d(12, 12), Math.toRadians(-90))
+                        .build()
+                );
                 drive.updatePoseEstimate();
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(new Vector2d(48, 12), Math.toRadians(0))
+                        .build()
+                );
+                drive.updatePoseEstimate();
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(new Vector2d(48, 60), Math.toRadians(0))
+                        .build()
+                );
+                drive.updatePoseEstimate();
+//                Actions.runBlocking(drive.actionBuilder(drive.pose)
+//                        .turnTo(Math.toRadians(180))
+//                        .build()
+//                );
+//                drive.updatePoseEstimate();
+                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(new Vector2d(12, 60), Math.toRadians(180))
+                        .build()
+                );
+                drive.updatePoseEstimate();
+//                Actions.runBlocking(drive.actionBuilder(drive.pose)
+//                        .turnTo(Math.toRadians(-90))
+//                        .build()
+//                );
+//                drive.updatePoseEstimate();
             }
 
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {
