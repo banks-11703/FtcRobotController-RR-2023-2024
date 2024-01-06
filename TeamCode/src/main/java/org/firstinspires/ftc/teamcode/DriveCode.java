@@ -22,7 +22,7 @@ public class DriveCode extends DriveCodeCommon {
             outake(drive);
             lift(drive);
             telemetry(drive);
-//            launcher(drive);
+            launcher(drive);
         }
     }
 }
