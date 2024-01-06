@@ -55,10 +55,16 @@ public class AutoCodeCommon extends LinearOpMode {
     final double MAX_AUTO_STRAFE = 0.3;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
 
+    boolean backupTagBehind = false;
+    boolean backupTag2Behind = true;
+    boolean tagEverFound = false;
+    int BACKUP_TAG2_ID = -1;
+    int BACKUP_TAG_ID = -1;
     int DESIRED_TAG_ID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
+
 
     private double desiredTagRange = 0;
     private double desiredTagBearing = 0;
@@ -66,9 +72,9 @@ public class AutoCodeCommon extends LinearOpMode {
 
     ElapsedTime timeSinceAprilTag = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    ElapsedTime timeSinceTag2 = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    ElapsedTime timeSinceBackupTag = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    ElapsedTime timeSinceBackupTag2 = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
-    boolean tag2Seen = false;
 
     boolean lockedIn = false;
     boolean wasLockedIn = false;
@@ -242,29 +248,54 @@ public class AutoCodeCommon extends LinearOpMode {
         if (Team() == 0) {
             if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
-                DESIRED_TAG_ID = 15;
+                DESIRED_TAG_ID = 1;
+                BACKUP_TAG_ID = 2;
+                backupTagBehind = true;
+                BACKUP_TAG2_ID = 3;
+                backupTag2Behind = true;
                 finalBackdropPos = backdropPos1;
             } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
                 DESIRED_TAG_ID = 2;
+                BACKUP_TAG_ID = 1;
+                backupTagBehind = false;
+                BACKUP_TAG2_ID = 3;
+                backupTag2Behind = true;
+
                 finalBackdropPos = backdropPos2;
             } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
                 DESIRED_TAG_ID = 3;
+                BACKUP_TAG_ID = 2;
+                backupTagBehind = false;
+                BACKUP_TAG2_ID = 1;
+                backupTag2Behind = false;
                 finalBackdropPos = backdropPos3;
             }
         } else {
             if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
                 DESIRED_TAG_ID = 4;
+                BACKUP_TAG_ID = 5;
+                backupTagBehind = false;
+                BACKUP_TAG2_ID = 6;
+                backupTag2Behind = false;
                 finalBackdropPos = backdropPos4;
             } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
                 DESIRED_TAG_ID = 5;
+                BACKUP_TAG_ID = 6;
+                backupTagBehind = false;
+                BACKUP_TAG2_ID = 4;
+                backupTag2Behind = true;
                 finalBackdropPos = backdropPos5;
             } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
                 DESIRED_TAG_ID = 6;
+                BACKUP_TAG_ID = 5;
+                backupTagBehind = true;
+                BACKUP_TAG2_ID = 4;
+                backupTag2Behind = true;
                 finalBackdropPos = backdropPos6;
             }
         }
@@ -331,7 +362,9 @@ public class AutoCodeCommon extends LinearOpMode {
         }
 
         goToAprilTag(drive);
-        scoreBackdrop(drive);
+        if(tagEverFound) {
+            scoreBackdrop(drive);
+        }
     }
 
     private void autoPreloadedBlueFrontStage(@NonNull MecanumDrive drive) {
@@ -725,6 +758,21 @@ public class AutoCodeCommon extends LinearOpMode {
             );
             drive.updatePoseEstimate();
         }
+        if(!tagEverFound) {
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                            .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(-5,0)))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+            drive.flipper.setPosition(0.2);
+            waitEx(1850);
+            drive.flipper.setPosition(flipperIntake);
+            waitEx(150);Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(5,0)))
+                    .build()
+            );
+            drive.updatePoseEstimate();
+        }
     }
 
 
@@ -846,6 +894,8 @@ public class AutoCodeCommon extends LinearOpMode {
     }
 
     private void goToAprilTag(MecanumDrive drive) {
+        boolean backupTag2Seen = false;
+        boolean backupTagSeen = false;
         boolean targetFound = false;    // Set to true when an AprilTag target is detected
         double forward = 0;        // Desired forward power/speed (-1 to +1)
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
@@ -867,9 +917,8 @@ public class AutoCodeCommon extends LinearOpMode {
         desiredTag = null;
         telemetry.addData("Desired Tag", DESIRED_TAG_ID);
         telemetry.update();
-        while (!(Math.abs(rangeError) <= rangeErrorMargin && Math.abs(headingError) <= headingErrorMargin && Math.abs(yawError) <= yawErrorMargin) && timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < 4000 && opModeIsActive() && !isStopRequested()) {
+        while (timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < 4000 && !(Math.abs(rangeError) <= rangeErrorMargin && Math.abs(headingError) <= headingErrorMargin && Math.abs(yawError) <= yawErrorMargin) && opModeIsActive() && !isStopRequested()) {
 //            targetFound = false;
-
 
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
@@ -878,10 +927,6 @@ public class AutoCodeCommon extends LinearOpMode {
                 if (detection.metadata != null) {
                     telemetry.addData("Desired Tag", DESIRED_TAG_ID);
                     telemetry.addData("Tags Seen", detection.id);
-                    if (DESIRED_TAG_ID == 1 && detection.id == 2 && !tag2Seen) {
-                        timeSinceTag2.reset();
-                        tag2Seen = true;
-                    }
                     //  Check to see if we want to track towards this tag.
                     if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
                         // Yes, we want to use this tag.
@@ -892,12 +937,20 @@ public class AutoCodeCommon extends LinearOpMode {
                         desiredTagBearing = desiredTag.ftcPose.bearing;
                         desiredTagYaw = desiredTag.ftcPose.yaw;
                         break;  // don't look any further.
+                    } else if(detection.id == BACKUP_TAG_ID) {
+                        timeSinceBackupTag.reset();
+                        backupTagSeen = true;
+                        break;
+                    } else if(detection.id == BACKUP_TAG2_ID) {
+                        timeSinceBackupTag2.reset();
+                        backupTag2Seen = true;
+                        break;
                     }
                 }
             }
             telemetry.update();
 
-            // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
+            // If we have found the desired target, Drive to target Automatically .
             if (targetFound || timeSinceSeen.time(TimeUnit.MILLISECONDS) < 1000) {
 
                 // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
@@ -922,36 +975,61 @@ public class AutoCodeCommon extends LinearOpMode {
 
 
             moveRobot(forward, strafe, turn, drive);
-            if (targetFound) {
-                switch (DESIRED_TAG_ID) {
-                    case 1:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                    case 2:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                    case 3:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                    case 4:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                    case 5:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                    case 6:
-                        updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                        break;
-                }
-            }
             sleep(10);
-            if (timeSinceTag2.time(TimeUnit.MILLISECONDS) >= 500 && tag2Seen) {
-                rangeError = 0.0;
-                yawError = 0.0;
-                headingError = 0.0;
+            if(!targetFound) {
+                if((!backupTagBehind && backupTagSeen) || (!backupTag2Behind && backupTag2Seen)) {
+                    rangeError = 0.0;
+                    yawError = 0.0;
+                    headingError = 0.0;
+                }
             }
         }
         moveRobot(0, 0, 0, drive);
+        if(targetFound || backupTagSeen || backupTag2Seen) {
+            tagEverFound = true;
+        }
+        
+        if(!targetFound && (backupTagSeen || backupTag2Seen)) {
+            timeSinceAprilTag.reset();
+            boolean done = false;
+            long duration = 0;
+            if(backupTagSeen) {
+                duration = timeSinceBackupTag.time(TimeUnit.MILLISECONDS);
+            } else if(backupTag2Seen) {
+                duration = timeSinceBackupTag2.time(TimeUnit.MILLISECONDS);
+            }
+            while(timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
+                forward = 0;
+                strafe = -0.4 * yMod;
+                turn = 0.02 * yMod;
+
+            }
+        }
+
+        if (targetFound) {
+            switch (DESIRED_TAG_ID) {
+                case 1:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+                case 2:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+                case 3:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+                case 4:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+                case 5:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+                case 6:
+                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
+                    break;
+            }
+        } else {
+            updatedPose = drive.pose;
+        }
     }
 
     /**

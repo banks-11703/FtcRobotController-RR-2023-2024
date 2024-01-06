@@ -316,7 +316,7 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
-    public void launcher(MecanumDrive drive) {//2
+    public void launcher(MecanumDrive drive) {
 //        dpadL1.updateButton(gamepad1.dpad_left);
 //        if(dpadL1.isHeld()) {
 //            drive.launchLatch.setPosition(planeOpen);
