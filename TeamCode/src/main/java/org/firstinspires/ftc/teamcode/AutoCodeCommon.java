@@ -988,21 +988,26 @@ public class AutoCodeCommon extends LinearOpMode {
         if(targetFound || backupTagSeen || backupTag2Seen) {
             tagEverFound = true;
         }
-        
+
         if(!targetFound && (backupTagSeen || backupTag2Seen)) {
             timeSinceAprilTag.reset();
             boolean done = false;
             long duration = 0;
+            boolean behind;
             if(backupTagSeen) {
                 duration = timeSinceBackupTag.time(TimeUnit.MILLISECONDS);
-            } else if(backupTag2Seen) {
+                behind = backupTagBehind;
+            } else {
                 duration = timeSinceBackupTag2.time(TimeUnit.MILLISECONDS);
+                behind = backupTag2Behind;
             }
-            while(timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
-                forward = 0;
-                strafe = -0.4 * yMod;
-                turn = 0.02 * yMod;
 
+            while(timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
+                if(behind) {
+                    moveRobot(0,0.4*yMod,-0.02*yMod,drive);
+                } else {
+                    moveRobot(0,-0.4*yMod,0.02*yMod,drive);
+                }
             }
         }
 
