@@ -111,7 +111,7 @@ public class DriveCodeCommon extends LinearOpMode {
     GamepadEx a2 = new GamepadEx();//liftToZero
 
     GamepadEx b2 = new GamepadEx();//adjust
-    GamepadEx dpadL1 = new GamepadEx(5, true);//planeLauncher
+    GamepadEx dpadL1 = new GamepadEx();//planeLauncher
     GamepadEx dpadD1 = new GamepadEx();// stack lift
     GamepadEx rBumper1 = new GamepadEx();
 
