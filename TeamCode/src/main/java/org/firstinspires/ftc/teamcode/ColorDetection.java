@@ -110,7 +110,7 @@ public class ColorDetection extends LinearOpMode {
      * The core values which define the location and size of the sample regions
      */
     public static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(95,210);
-    public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(615,210);
+    public static Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(575,210);
     public static Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1175,210);
     public static int REGION_WIDTH = 50;
     public static int REGION_HEIGHT = 50;

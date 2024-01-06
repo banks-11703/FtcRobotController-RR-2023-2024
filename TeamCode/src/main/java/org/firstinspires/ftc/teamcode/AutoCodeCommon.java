@@ -126,8 +126,8 @@ public class AutoCodeCommon extends LinearOpMode {
     double flipperHold = 0.6;
 
     final Pose2d startRedLeft = new Pose2d(-36, -63.9375, Math.toRadians(-90));
-    final Pose2d startRedRight = new Pose2d(36, -63.9375, Math.toRadians(-90));
-    final Pose2d startBlueLeft = new Pose2d(36, 63.9375, Math.toRadians(90));
+    final Pose2d startRedRight = new Pose2d(12, -63.9375, Math.toRadians(-90));
+    final Pose2d startBlueLeft = new Pose2d(12, 63.9375, Math.toRadians(90));
     final Pose2d startBlueRight = new Pose2d(-36, 63.9375, Math.toRadians(90));
     Pose2d finalStart = new Pose2d(0, 0, 0);
     Pose2d updatedPose = new Pose2d(0, 0, 0);
@@ -144,8 +144,10 @@ public class AutoCodeCommon extends LinearOpMode {
     Vector2d scoreClose;
     Vector2d scoreMiddle;
     Vector2d scoreFar;
-    Vector2d spikePosUpper;
-    Vector2d spikePosLower;
+    Vector2d spikePosUpperFront;
+    Vector2d spikePosLowerFront;
+    Vector2d spikePosUpperBack;
+    Vector2d spikePosLowerBack;
 
 
     @Override
@@ -331,8 +333,10 @@ public class AutoCodeCommon extends LinearOpMode {
         scoreClose = new Vector2d(-36 + xMod, -60 * yMod);
         scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
         scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
-        spikePosUpper = new Vector2d(-37 + xMod, -26.5 * yMod);
-        spikePosLower = new Vector2d(-37 + xMod, -35 * yMod);
+        spikePosUpperFront = new Vector2d(-37 + xMod, -26.5 * yMod);
+        spikePosLowerFront = new Vector2d(-37 + xMod, -35 * yMod);
+        spikePosUpperBack = new Vector2d(13, -26.5 * yMod);
+        spikePosLowerBack = new Vector2d(13, -35 * yMod);
     }
 
     public void liftSetup(@NonNull MecanumDrive drive) {
@@ -362,7 +366,7 @@ public class AutoCodeCommon extends LinearOpMode {
         }
 
         goToAprilTag(drive);
-        if(tagEverFound) {
+        if (tagEverFound) {
             scoreBackdrop(drive);
         }
     }
@@ -376,15 +380,15 @@ public class AutoCodeCommon extends LinearOpMode {
         switch (randomizationResult) {
             case 0://left
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(5.5 - 5.5 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(5.5 - 5.5 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
                         .strafeToLinearHeading(new Vector2d(-36, 12), Math.toRadians(90))
                         .build()
                 );
@@ -393,7 +397,7 @@ public class AutoCodeCommon extends LinearOpMode {
             case 1://center
             default:
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosUpper, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosUpperFront, Math.toRadians(90 * randomizationResult))
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -407,15 +411,15 @@ public class AutoCodeCommon extends LinearOpMode {
                 break;
             case 2://right
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d((4 - 4 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d((4 - 4 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d((6 - 6 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d((4 - 4 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d((6 - 6 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d((4 - 4 * randomizationResult), 0)), Math.toRadians(90 * randomizationResult))
                         .strafeToLinearHeading(new Vector2d(drive.pose.position.x, 12), Math.toRadians(90))
                         .build()
                 );
@@ -459,19 +463,23 @@ public class AutoCodeCommon extends LinearOpMode {
     private void autoPreloadedBlueBackStage(@NonNull MecanumDrive drive) {
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 5), finalStart.heading)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 6), Math.toRadians(90 * randomizationResult))
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 6), Math.toRadians(-90 * randomizationResult))
                 .build()
         );
+        lifts(100, drive);
         switch (randomizationResult) {
             case 0://left
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(5.5 - 5.5 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerBack, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerBack.plus(new Vector2d(8 - 8 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
                         .build());
                 drive.updatePoseEstimate();
-                lifts(100, drive);
+                drive.flipper.setPosition(0.7);
+                waitEx(10);
+                lifts(150, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .strafeToLinearHeading(spikePosLowerBack, Math.toRadians(90 * randomizationResult))
                         .strafeToLinearHeading(new Vector2d(drive.pose.position.x, 12), Math.toRadians(90))
                         .build()
                 );
@@ -480,35 +488,42 @@ public class AutoCodeCommon extends LinearOpMode {
             case 1://center
             default:
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosUpper, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosUpperBack, Math.toRadians(-90 * randomizationResult))
                         .build()
                 );
                 drive.updatePoseEstimate();
-                lifts(100, drive);
+                drive.flipper.setPosition(0.7);
+                waitEx(10);
+                lifts(150, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x, 12), drive.pose.heading)
+                        .strafeToLinearHeading(spikePosLowerBack.plus(new Vector2d(0, 8)), Math.toRadians(-90 * randomizationResult))
+                        .strafeToLinearHeading(new Vector2d(36, spikePosLowerBack.y), Math.toRadians(180))
+                        .strafeToLinearHeading(new Vector2d(36, 12), Math.toRadians(90))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 break;
             case 2://right
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(4 - 4 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerBack, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(spikePosLowerBack.plus(new Vector2d(8 - 8 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
                         .build());
                 drive.updatePoseEstimate();
-                lifts(100, drive);
+                drive.flipper.setPosition(0.7);
+                waitEx(10);
+                lifts(150, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(6 - 6 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(4 - 4 * randomizationResult, 0)), Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(6, 0)), Math.toRadians(90 * randomizationResult))
-                        .strafeToLinearHeading(new Vector2d(42, 12), Math.toRadians(90))
+                        .strafeToLinearHeading(spikePosLowerBack, Math.toRadians(90 * randomizationResult))
+                        .strafeToLinearHeading(new Vector2d(spikePosLowerBack.x, 12), Math.toRadians(90))
                         .build()
                 );
+                drive.updatePoseEstimate();
                 break;
         }
+        drive.flipper.setPosition(flipperIntake);
+//        lifts(0,drive);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 1, 12), Math.toRadians(0))
                 .build()
@@ -517,8 +532,8 @@ public class AutoCodeCommon extends LinearOpMode {
         switch (randomizationResult) {
             case 0://left
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(-10))
-                        .strafeToLinearHeading(new Vector2d(64, 12 + 2), Math.toRadians(-10))
+                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(0))
+                        .strafeToLinearHeading(new Vector2d(44, 12 + 2), Math.toRadians(0))
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -526,16 +541,16 @@ public class AutoCodeCommon extends LinearOpMode {
             case 1://center
             default:
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(-10))
-                        .strafeToLinearHeading(new Vector2d(64, 12), Math.toRadians(-10))
+                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(0))
+                        .strafeToLinearHeading(new Vector2d(44, 12), Math.toRadians(0))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 break;
             case 2://right
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(5))
-                        .strafeToLinearHeading(new Vector2d(64, 12 + 6), Math.toRadians(5))
+                        .strafeToLinearHeading(new Vector2d(drive.pose.position.x + 2, 12), Math.toRadians(0))
+                        .strafeToLinearHeading(new Vector2d(44, 12 + 4), Math.toRadians(0))
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -553,15 +568,15 @@ public class AutoCodeCommon extends LinearOpMode {
         switch (randomizationResult) {
             case 0://left
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
                         .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -13), Math.toRadians(-90))
                         .build()
                 );
@@ -570,7 +585,7 @@ public class AutoCodeCommon extends LinearOpMode {
             case 1://center
             default:
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosUpper, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosUpperFront, Math.toRadians(90 * (randomizationResult) - 180))
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -584,15 +599,15 @@ public class AutoCodeCommon extends LinearOpMode {
                 break;
             case 2://right
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(2, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(2, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .strafeToLinearHeading(new Vector2d(-36, -12), Math.toRadians(-90))
                         .build()
                 );
@@ -640,18 +655,19 @@ public class AutoCodeCommon extends LinearOpMode {
                 .build()
         );
         drive.updatePoseEstimate();
+        lifts(100, drive);
         switch (randomizationResult) {
             case 0://left
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180 + headingMod))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
                         .strafeToLinearHeading(new Vector2d(drive.pose.position.x, -13), Math.toRadians(-90))
                         .build()
                 );
@@ -660,7 +676,7 @@ public class AutoCodeCommon extends LinearOpMode {
             case 1://center
             default:
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosUpper, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosUpperFront, Math.toRadians(90 * (randomizationResult) - 180))
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -674,15 +690,15 @@ public class AutoCodeCommon extends LinearOpMode {
                 break;
             case 2://right
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower, Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront, Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-4 + 4 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .build());
                 drive.updatePoseEstimate();
                 lifts(100, drive);
                 waitEx(1000);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
-                        .strafeToLinearHeading(spikePosLower.plus(new Vector2d(2, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(-6 + 6 * randomizationResult, 0)), Math.toRadians(90 * (randomizationResult) - 180))
+                        .strafeToLinearHeading(spikePosLowerFront.plus(new Vector2d(2, 0)), Math.toRadians(90 * (randomizationResult) - 180))
                         .strafeToLinearHeading(new Vector2d(-36, -12), Math.toRadians(-90))
                         .build()
                 );
@@ -731,8 +747,8 @@ public class AutoCodeCommon extends LinearOpMode {
         drive.updatePoseEstimate();
         if (Team() == 0 && Park() == 0) {//Blue Far
             Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(new Vector2d(drive.pose.position.x, 13), Math.toRadians(0))
-                    .strafeToLinearHeading(new Vector2d(56, 13), Math.toRadians(0))
+                    .strafeToLinearHeading(new Vector2d(drive.pose.position.x, 11 + randomizationResult), Math.toRadians(0))
+                    .strafeToLinearHeading(new Vector2d(64, 11 + randomizationResult), Math.toRadians(0))
                     .build()
             );
             drive.updatePoseEstimate();
@@ -758,17 +774,18 @@ public class AutoCodeCommon extends LinearOpMode {
             );
             drive.updatePoseEstimate();
         }
-        if(!tagEverFound) {
+        if (!tagEverFound) {
             Actions.runBlocking(drive.actionBuilder(drive.pose)
-                            .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(-5,0)))
+                    .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(-5, 0)))
                     .build()
             );
             drive.updatePoseEstimate();
             drive.flipper.setPosition(0.2);
             waitEx(1850);
             drive.flipper.setPosition(flipperIntake);
-            waitEx(150);Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(5,0)))
+            waitEx(150);
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .strafeToConstantHeading(drive.pose.position.plus(new Vector2d(5, 0)))
                     .build()
             );
             drive.updatePoseEstimate();
@@ -937,11 +954,11 @@ public class AutoCodeCommon extends LinearOpMode {
                         desiredTagBearing = desiredTag.ftcPose.bearing;
                         desiredTagYaw = desiredTag.ftcPose.yaw;
                         break;  // don't look any further.
-                    } else if(detection.id == BACKUP_TAG_ID) {
+                    } else if (detection.id == BACKUP_TAG_ID) {
                         timeSinceBackupTag.reset();
                         backupTagSeen = true;
                         break;
-                    } else if(detection.id == BACKUP_TAG2_ID) {
+                    } else if (detection.id == BACKUP_TAG2_ID) {
                         timeSinceBackupTag2.reset();
                         backupTag2Seen = true;
                         break;
@@ -970,14 +987,14 @@ public class AutoCodeCommon extends LinearOpMode {
             } else {
                 forward = 0;
                 strafe = -0.4 * yMod;
-                turn = 0.02 * yMod;
+                turn = 0.04 * yMod;
             }
 
 
             moveRobot(forward, strafe, turn, drive);
             sleep(10);
-            if(!targetFound) {
-                if((!backupTagBehind && backupTagSeen) || (!backupTag2Behind && backupTag2Seen)) {
+            if (!targetFound) {
+                if ((!backupTagBehind && backupTagSeen) || (!backupTag2Behind && backupTag2Seen)) {
                     rangeError = 0.0;
                     yawError = 0.0;
                     headingError = 0.0;
@@ -985,16 +1002,16 @@ public class AutoCodeCommon extends LinearOpMode {
             }
         }
         moveRobot(0, 0, 0, drive);
-        if(targetFound || backupTagSeen || backupTag2Seen) {
+        if (targetFound || backupTagSeen || backupTag2Seen) {
             tagEverFound = true;
         }
 
-        if(!targetFound && (backupTagSeen || backupTag2Seen)) {
+        if (!targetFound && (backupTagSeen || backupTag2Seen)) {
             timeSinceAprilTag.reset();
             boolean done = false;
             long duration = 0;
             boolean behind;
-            if(backupTagSeen) {
+            if (backupTagSeen) {
                 duration = timeSinceBackupTag.time(TimeUnit.MILLISECONDS);
                 behind = backupTagBehind;
             } else {
@@ -1002,12 +1019,8 @@ public class AutoCodeCommon extends LinearOpMode {
                 behind = backupTag2Behind;
             }
 
-            while(timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
-                if(behind) {
-                    moveRobot(0,0.4*yMod,-0.02*yMod,drive);
-                } else {
-                    moveRobot(0,-0.4*yMod,0.02*yMod,drive);
-                }
+            while (timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
+                moveRobot(0, 0.4 * yMod, -0.04 * yMod, drive);
             }
         }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -131,16 +133,17 @@ public class BasicAuto extends LinearOpMode {
         setManualExposure(6, 250);
         waitForStart();
         while(opModeIsActive() && !isStopRequested()) {
-            Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .turn(Math.toRadians(-90))
-                    .build()
-            );
-            drive.updatePoseEstimate();
-            Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .turn(Math.toRadians(90))
-                    .build()
-            );
-            drive.updatePoseEstimate();
+            moveRobot(0, 0.4, -0.04, drive);
+//            Actions.runBlocking(drive.actionBuilder(drive.pose)
+//                    .turn(Math.toRadians(-90))
+//                    .build()
+//            );
+//            drive.updatePoseEstimate();
+//            Actions.runBlocking(drive.actionBuilder(drive.pose)
+//                    .turn(Math.toRadians(90))
+//                    .build()
+//            );
+//            drive.updatePoseEstimate();
         }
     }
 
@@ -148,6 +151,42 @@ public class BasicAuto extends LinearOpMode {
         ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         time.reset();
         while (time.time(TimeUnit.MILLISECONDS) < milliseconds && opModeIsActive() && !isStopRequested()) {}
+    }
+
+    /**
+     * Move robot according to desired axes motions
+     * <p>
+     * Positive X is forward
+     * <p>
+     * Positive Y is strafe left
+     * <p>
+     * Positive Yaw is counter-clockwise
+     */
+    private void moveRobot(double x, double y, double yaw, @NonNull MecanumDrive drive) {
+        // Calculate wheel powers.
+        double leftFrontPower = x - y - yaw;
+        double rightFrontPower = x + y + yaw;
+        double leftBackPower = x + y - yaw;
+        double rightBackPower = x - y + yaw;
+
+        // Normalize wheel powers to be less than 1.0
+        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+        max = Math.max(max, Math.abs(leftBackPower));
+        max = Math.max(max, Math.abs(rightBackPower));
+
+        if (max > 1.0) {
+            leftFrontPower /= max;
+            rightFrontPower /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
+        }
+
+
+        // Send powers to the wheels.
+        drive.frontLeft.setPower(leftFrontPower);
+        drive.frontRight.setPower(rightFrontPower);
+        drive.backLeft.setPower(leftBackPower);
+        drive.backRight.setPower(rightBackPower);
     }
 
 }

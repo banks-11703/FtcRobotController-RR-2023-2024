@@ -151,6 +151,7 @@ public class DriveCodeCommon extends LinearOpMode {
         a2.updateButton(gamepad2.a);
         b2.updateButton(gamepad2.b);
         y2.updateButton(gamepad2.y);
+        dpadL1.updateButton(gamepad1.dpad_left);
 //        rBumper1.updateButton(gamepad1.right_bumper);
 //        dpadD1.updateButton(gamepad1.dpad_down);
     }
