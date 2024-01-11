@@ -142,15 +142,15 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
     double flipperIntake = 0.86;
     double flipperHold = 0.6;
 
-    final Pose2d startRedLeft = new Pose2d(-36, -63.9375, Math.toRadians(-90));
-    final Pose2d startRedRight = new Pose2d(12, -63.9375, Math.toRadians(-90));
-    final Pose2d startBlueLeft = new Pose2d(12, 63.9375, Math.toRadians(90));
-    final Pose2d startBlueRight = new Pose2d(-36, 63.9375, Math.toRadians(90));
+    final Pose2d startBlueFront = new Pose2d(-36, 63.9375, Math.toRadians(90));
+    final Pose2d startRedFront = new Pose2d(-36, -63.9375, Math.toRadians(-90));
+    final Pose2d startBlueBack = new Pose2d(12, 63.9375, Math.toRadians(90));
+    final Pose2d startRedBack = new Pose2d(12, -63.9375, Math.toRadians(-90));
     Pose2d finalStart = new Pose2d(0, 0, 0);
     Pose2d updatedPose = new Pose2d(0, 0, 0);
-    final Pose2d backdropPos1 = new Pose2d(42, 42, 0);
-    final Pose2d backdropPos2 = new Pose2d(42, 36, 0);
-    final Pose2d backdropPos3 = new Pose2d(42, 30, 0);
+    final Pose2d backdropPos1 = new Pose2d(62, 42, 0);
+    final Pose2d backdropPos2 = new Pose2d(62, 36, 0);
+    final Pose2d backdropPos3 = new Pose2d(62, 27, 0);
     final Pose2d backdropPos4 = new Pose2d(42, -26, 0);
     final Pose2d backdropPos5 = new Pose2d(42, -26, 0);
     final Pose2d backdropPos6 = new Pose2d(42, -26, 0);
@@ -311,22 +311,22 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
             yMod = -1;
             xMod = 0;
             headingMod = 180;
-            finalStart = startBlueRight;
+            finalStart = startBlueFront;
         } else if (Team() == 0 && Side() == 1) {//blue backstage
             yMod = -1;
             xMod = 72;
             headingMod = 180;
-            finalStart = startBlueLeft;
+            finalStart = startBlueBack;
         } else if (Team() == 1 && Side() == 0) {//red frontStage
             yMod = 1;
             xMod = 0;
             headingMod = 0;
-            finalStart = startRedLeft;
+            finalStart = startRedFront;
         } else if (Team() == 1 && Side() == 1) {//red backStage
             yMod = 1;
             xMod = 72;
             headingMod = 0;
-            finalStart = startRedRight;
+            finalStart = startRedBack;
         }
 
         //all positions with y,x,or heading Mod assume red left starting
@@ -352,6 +352,8 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
     public void runAutoPreloaded(MecanumDrive drive) {
         if (finalStart.position.x == 0) {
             waitEx(1000000);
+        } else {
+            waitEx(startDelay*1000);
         }
 
         if (Team() == 0 && Side() == 0) {//Blue Frontstage
@@ -470,11 +472,12 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
 
     private void autoPreloadedBlueBackStage(@NonNull MecanumDrive drive) {
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5), finalStart.heading)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6), Math.toRadians(-90 * (randomizationResult) + 180))
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 5), finalStart.heading)
+                .splineToSplineHeading(finalBackdropPos,0)
                 .build()
         );
-        drive.updatePoseEstimate();
+        scoreBackdrop(drive);
+        waitEx(1000000);
         lifts(100, drive);
         switch (randomizationResult) {
             case 0://left
