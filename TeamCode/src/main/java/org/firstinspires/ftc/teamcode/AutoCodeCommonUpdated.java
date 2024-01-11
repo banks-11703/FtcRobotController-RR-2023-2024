@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Autonomous
 @Disabled
-public class AutoCodeCommon extends LinearOpMode {
+public class AutoCodeCommonUpdated extends LinearOpMode {
 
     OpenCvCamera camera;
     public ColorDetection.RedDeterminationPipeline pipelineRed;
@@ -109,10 +109,27 @@ public class AutoCodeCommon extends LinearOpMode {
         return park % 2;
     }
 
+    int path = 0;
+
+    /**
+     * 0==Rigging
+     * 1==Stage Door
+     */
+    int Path() {
+        return path % 2;
+    }
+
+    double startDelay = 0.0;
+    static final double MAX_DELAY = 30;
+
     GamepadEx a1 = new GamepadEx();
     GamepadEx b1 = new GamepadEx();
     GamepadEx x1 = new GamepadEx();
     GamepadEx y1 = new GamepadEx();
+    GamepadEx l1 = new GamepadEx();
+    GamepadEx r1 = new GamepadEx();
+    GamepadEx u1 = new GamepadEx();
+    GamepadEx d1 = new GamepadEx();
 
     int randomizationResult;//0==left   1==center   2==right
 
@@ -131,19 +148,16 @@ public class AutoCodeCommon extends LinearOpMode {
     final Pose2d startBlueRight = new Pose2d(-36, 63.9375, Math.toRadians(90));
     Pose2d finalStart = new Pose2d(0, 0, 0);
     Pose2d updatedPose = new Pose2d(0, 0, 0);
-    final Vector2d backdropPos1 = new Vector2d(42, 42);
-    final Vector2d backdropPos2 = new Vector2d(42, 36);
-    final Vector2d backdropPos3 = new Vector2d(42, 30);
-    final Vector2d backdropPos4 = new Vector2d(42, -26);
-    final Vector2d backdropPos5 = new Vector2d(42, -26);
-    final Vector2d backdropPos6 = new Vector2d(42, -26);
-    Vector2d finalBackdropPos = new Vector2d(0, 0);
+    final Pose2d backdropPos1 = new Pose2d(42, 42, 0);
+    final Pose2d backdropPos2 = new Pose2d(42, 36, 0);
+    final Pose2d backdropPos3 = new Pose2d(42, 30, 0);
+    final Pose2d backdropPos4 = new Pose2d(42, -26, 0);
+    final Pose2d backdropPos5 = new Pose2d(42, -26, 0);
+    final Pose2d backdropPos6 = new Pose2d(42, -26, 0);
+    Pose2d finalBackdropPos = new Pose2d(0, 0, 0);
 
     Vector2d parkLower;
     Vector2d parkUpper;
-    Vector2d scoreClose;
-    Vector2d scoreMiddle;
-    Vector2d scoreFar;
     Vector2d spikePosUpperFront;
     Vector2d spikePosLowerFront;
     Vector2d spikePosUpperBack;
@@ -183,6 +197,10 @@ public class AutoCodeCommon extends LinearOpMode {
             b1.updateButton(gamepad1.b);
             x1.updateButton(gamepad1.x);
             y1.updateButton(gamepad1.y);
+            l1.updateButton(gamepad1.dpad_left);
+            r1.updateButton(gamepad1.dpad_right);
+            u1.updateButton(gamepad1.dpad_up);
+            d1.updateButton(gamepad1.dpad_down);
 
             if (lockedIn) {
                 telemetry.addData("Press A to back out", "");
@@ -190,7 +208,9 @@ public class AutoCodeCommon extends LinearOpMode {
                 telemetry.addData("Press A to lock in decision\n" +
                         "Press B to change team\n" +
                         "Press X to change side\n" +
-                        "Press Y to change parking location", "");
+                        "Press Y to change parking location\n" +
+                        "Press DPad Left to change the path\n" +
+                        "Press DPad Up and Down to change the starting delay", "");
             }
             if (Team() == 0) {
                 telemetry.addData("Team", "Blue");
@@ -202,12 +222,17 @@ public class AutoCodeCommon extends LinearOpMode {
             } else {
                 telemetry.addData("Side", "BackStage");
             }
-
             if (Park() == 0) {
                 telemetry.addData("Park", "Far");
             } else {
                 telemetry.addData("Park", "Close");
             }
+            if (Path() == 0) {
+                telemetry.addData("Path", "Rigging");
+            } else {
+                telemetry.addData("Path", "Stage Door");
+            }
+            telemetry.addData("Start Delay (seconds)", startDelay);
 
             if (lockedIn) {
                 if (Team() == 0) {
@@ -225,12 +250,20 @@ public class AutoCodeCommon extends LinearOpMode {
                 if (b1.isPressed()) {
                     team++;
                 }
-
                 if (x1.isPressed()) {
                     side++;
                 }
                 if (y1.isPressed()) {
                     park++;
+                }
+                if (l1.isPressed()) {
+                    path++;
+                }
+                if (u1.isPressed() && startDelay < MAX_DELAY - 0.5) {
+                    startDelay += 0.5;
+                }
+                if (d1.isPressed() && startDelay > 0) {
+                    startDelay -= 0.5;
                 }
 
                 wasLockedIn = false;
@@ -250,54 +283,23 @@ public class AutoCodeCommon extends LinearOpMode {
         if (Team() == 0) {
             if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
-                DESIRED_TAG_ID = 1;
-                BACKUP_TAG_ID = 2;
-                backupTagBehind = true;
-                BACKUP_TAG2_ID = 3;
-                backupTag2Behind = true;
                 finalBackdropPos = backdropPos1;
             } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
-                DESIRED_TAG_ID = 2;
-                BACKUP_TAG_ID = 1;
-                backupTagBehind = false;
-                BACKUP_TAG2_ID = 3;
-                backupTag2Behind = true;
-
                 finalBackdropPos = backdropPos2;
             } else if (pipelineBlue.getAnalysis() == ColorDetection.BlueDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
-                DESIRED_TAG_ID = 3;
-                BACKUP_TAG_ID = 2;
-                backupTagBehind = false;
-                BACKUP_TAG2_ID = 1;
-                backupTag2Behind = false;
                 finalBackdropPos = backdropPos3;
             }
         } else {
             if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.LEFT) {
                 randomizationResult = 0;
-                DESIRED_TAG_ID = 4;
-                BACKUP_TAG_ID = 5;
-                backupTagBehind = false;
-                BACKUP_TAG2_ID = 6;
-                backupTag2Behind = false;
                 finalBackdropPos = backdropPos4;
             } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.CENTER) {
                 randomizationResult = 1;
-                DESIRED_TAG_ID = 5;
-                BACKUP_TAG_ID = 6;
-                backupTagBehind = false;
-                BACKUP_TAG2_ID = 4;
-                backupTag2Behind = true;
                 finalBackdropPos = backdropPos5;
             } else if (pipelineRed.getAnalysis() == ColorDetection.RedDeterminationPipeline.TeamElementPosition.RIGHT) {
                 randomizationResult = 2;
-                DESIRED_TAG_ID = 6;
-                BACKUP_TAG_ID = 5;
-                backupTagBehind = true;
-                BACKUP_TAG2_ID = 4;
-                backupTag2Behind = true;
                 finalBackdropPos = backdropPos6;
             }
         }
@@ -330,11 +332,8 @@ public class AutoCodeCommon extends LinearOpMode {
         //all positions with y,x,or heading Mod assume red left starting
         parkLower = new Vector2d(60, -63 * yMod);
         parkUpper = new Vector2d(60, -12 * yMod);
-        scoreClose = new Vector2d(-36 + xMod, -60 * yMod);
-        scoreMiddle = new Vector2d(-36 + xMod, -60 * yMod);
-        scoreFar = new Vector2d(-36 + xMod, -60 * yMod);
-        spikePosUpperFront = new Vector2d(-36 + xMod, -26.5 * yMod);
-        spikePosLowerFront = new Vector2d(-36 + xMod, -35 * yMod);
+        spikePosUpperFront = new Vector2d(-36, -26.5 * yMod);
+        spikePosLowerFront = new Vector2d(-36, -35 * yMod);
         spikePosUpperBack = new Vector2d(12, -26.5 * yMod);
         spikePosLowerBack = new Vector2d(12, -35 * yMod);
     }
@@ -377,6 +376,7 @@ public class AutoCodeCommon extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 6), Math.toRadians(-90 * randomizationResult))
                 .build()
         );
+        drive.updatePoseEstimate();
         lifts(100, drive);
         switch (randomizationResult) {
             case 0://left
@@ -470,10 +470,11 @@ public class AutoCodeCommon extends LinearOpMode {
 
     private void autoPreloadedBlueBackStage(@NonNull MecanumDrive drive) {
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 5), finalStart.heading)
-                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 6), Math.toRadians(-90 * randomizationResult))
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5), finalStart.heading)
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 6), Math.toRadians(-90 * (randomizationResult) + 180))
                 .build()
         );
+        drive.updatePoseEstimate();
         lifts(100, drive);
         switch (randomizationResult) {
             case 0://left
@@ -826,7 +827,6 @@ public class AutoCodeCommon extends LinearOpMode {
     }
 
     private void scoreBackdrop(@NonNull MecanumDrive drive) {
-        moveRobot(0.5, 0, 0, drive);
         waitEx(500);
         lifts(200, drive);
         waitEx(500);

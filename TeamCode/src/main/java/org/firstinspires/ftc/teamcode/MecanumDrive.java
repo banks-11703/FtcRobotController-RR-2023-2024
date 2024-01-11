@@ -219,25 +219,7 @@ public final class MecanumDrive {
         leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
         rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
-//        planeLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
-//        frontLeft = hardwareMap.get(DcMotorEx.class, "leftFront");
-//        backLeft = hardwareMap.get(DcMotorEx.class, "leftBack");
-//        backRight = hardwareMap.get(DcMotorEx.class, "rightBack");
-//        frontRight = hardwareMap.get(DcMotorEx.class, "rightFront");
-//
-//        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//        frontLeft .setDirection(DcMotorSimple.Direction.REVERSE);
-//        backLeft  .setDirection(DcMotorSimple.Direction.REVERSE);
-//        backRight .setDirection(DcMotorSimple.Direction.FORWARD);
-//        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-//        imu = null;
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,

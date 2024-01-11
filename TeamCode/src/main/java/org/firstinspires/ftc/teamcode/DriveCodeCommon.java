@@ -102,7 +102,7 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
 
-    public static double forwardIntakeSpeed = -1;
+    double forwardIntakeSpeed = -1;
 
     GamepadEx a1 = new GamepadEx();
     GamepadEx x1 = new GamepadEx();//intake
@@ -302,7 +302,6 @@ public class DriveCodeCommon extends LinearOpMode {
         }
 
     }
-
 
     public void outake(MecanumDrive drive) {//2
         if (x2.isHeld()) {
