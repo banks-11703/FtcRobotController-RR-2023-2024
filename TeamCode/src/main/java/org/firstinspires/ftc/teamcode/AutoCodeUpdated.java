@@ -9,13 +9,11 @@ public class AutoCodeUpdated extends AutoCodeCommonUpdated {
     public void runOpMode() throws InterruptedException {
         setup();
         initialization();
-//        initAprilTag();
         MecanumDrive drive = new MecanumDrive(hardwareMap, finalStart);
         setManualExposure(6, 250);
         waitForStart();
         liftSetup(drive);
         runAutoPreloaded(drive);
-        drive = new MecanumDrive(hardwareMap, updatedPose);
         park(drive);
     }
 }
