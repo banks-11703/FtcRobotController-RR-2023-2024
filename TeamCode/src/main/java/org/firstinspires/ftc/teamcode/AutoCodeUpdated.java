@@ -10,10 +10,8 @@ public class AutoCodeUpdated extends AutoCodeCommonUpdated {
         setup();
         initialization();
         MecanumDrive drive = new MecanumDrive(hardwareMap, finalStart);
-        setManualExposure(6, 250);
         waitForStart();
         liftSetup(drive);
         runAutoPreloaded(drive);
-        park(drive);
     }
 }

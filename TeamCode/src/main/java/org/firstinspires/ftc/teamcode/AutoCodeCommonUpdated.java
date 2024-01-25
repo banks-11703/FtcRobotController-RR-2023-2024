@@ -12,11 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -24,7 +21,6 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous
@@ -135,33 +131,35 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
 
 
     int yMod = 1;
-    int headingMod = 0;
+    double headingMod = 0;
 
     double flipperScore = 0.32;
     double flipperIntake = 0.86;
     double flipperHold = 0.6;
+
+    double ppp_up = 0.925;
+    double ppp_down = 0.35;
 
     final Pose2d startBlueFront = new Pose2d(-36, 63.9375, Math.toRadians(90));
     final Pose2d startRedFront = new Pose2d(-36, -63.9375, Math.toRadians(-90));
     final Pose2d startBlueBack = new Pose2d(12, 63.9375, Math.toRadians(90));
     final Pose2d startRedBack = new Pose2d(12, -63.9375, Math.toRadians(-90));
     Pose2d finalStart = new Pose2d(0, 0, 0);
-    Pose2d updatedPose = new Pose2d(0, 0, 0);
     final Pose2d backdropPos1 = new Pose2d(62, 42, 0);
     final Pose2d backdropPos2 = new Pose2d(62, 36, 0);
     final Pose2d backdropPos3 = new Pose2d(62, 27, 0);
-    final Pose2d backdropPos4 = new Pose2d(42, -26, 0);
-    final Pose2d backdropPos5 = new Pose2d(42, -26, 0);
-    final Pose2d backdropPos6 = new Pose2d(42, -26, 0);
+    final Pose2d backdropPos4 = new Pose2d(62, -27, 0);
+    final Pose2d backdropPos5 = new Pose2d(62, -36, 0);
+    final Pose2d backdropPos6 = new Pose2d(62, -42, 0);
     Pose2d finalBackdropPos = new Pose2d(0, 0, 0);
-    final Vector2d spikePosRedFront  = new Vector2d(-36, -35);
-    final Vector2d spikePosRedBack   = new Vector2d( 12, -35);
-    final Vector2d spikePosBlueFront = new Vector2d(-36,  35);
-    final Vector2d spikePosBlueBack  = new Vector2d( 12,  35);
+    final Vector2d spikePosRedFront = new Vector2d(-36 + 17.5, -31.5);
+    final Vector2d spikePosBlueFront = new Vector2d(-36 + 8, 31.5);
+    final Vector2d spikePosRedBack = new Vector2d(12 + 8, -31.5);
+    final Vector2d spikePosBlueBack = new Vector2d(12 + 8, 31.5);
     Vector2d finalSpikePos;
 
-    Vector2d parkLower;
-    Vector2d parkUpper;
+    Vector2d parkClose;
+    Vector2d parkFar;
 
 
     @Override
@@ -309,26 +307,29 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
     public void positionAnalysis() {
         if (Team() == 0 && Side() == 0) {//blue frontStage
             yMod = -1;
-            headingMod = 180;
+            headingMod = Math.PI;
             finalStart = startBlueFront;
+            finalSpikePos = spikePosBlueFront;
         } else if (Team() == 0 && Side() == 1) {//blue backstage
             yMod = -1;
-            headingMod = 180;
+            headingMod = 0.0;
             finalStart = startBlueBack;
+            finalSpikePos = spikePosBlueBack;
         } else if (Team() == 1 && Side() == 0) {//red frontStage
             yMod = 1;
-            headingMod = 0;
+            headingMod = Math.PI;
             finalStart = startRedFront;
+            finalSpikePos = spikePosRedFront;
         } else if (Team() == 1 && Side() == 1) {//red backStage
             yMod = 1;
-            headingMod = 0;
+            headingMod = 0.0;
             finalStart = startRedBack;
+            finalSpikePos = spikePosRedBack;
         }
 
         //all positions with y,x,or heading Mod assume red left starting
-        parkLower = new Vector2d(60, -63 * yMod);
-        parkUpper = new Vector2d(60, -12 * yMod);
-
+        parkClose = new Vector2d(60, -63 * yMod);
+        parkFar = new Vector2d(60, -10 * yMod);
     }
 
     public void liftSetup(@NonNull MecanumDrive drive) {
@@ -346,9 +347,8 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
         if (finalStart.position.x == 0) {
             waitEx(1000000);
         } else {
-            waitEx(startDelay*1000);
+            waitEx(startDelay * 1000);
         }
-
         if (Team() == 0 && Side() == 0) {//Blue Frontstage
             autoPreloadedBlueFrontStage(drive);
         } else if (Team() == 0 && Side() == 1) {//Blue Backstage
@@ -358,6 +358,7 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
         } else if (Team() == 1 && Side() == 1) {//Red Backstage
             autoPreloadedRedBackStage(drive);
         }
+        park(drive);
     }
 
     private void autoPreloadedBlueFrontStage(@NonNull MecanumDrive drive) {
@@ -365,19 +366,20 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
     }
 
     private void autoPreloadedBlueBackStage(@NonNull MecanumDrive drive) {
+        drive.ppp.setPosition(ppp_down);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
                 .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y - 5), finalStart.heading)
-                .splineToSplineHeading(finalBackdropPos,0)
+                .splineToSplineHeading(finalBackdropPos, 0)
                 .build()
         );
         drive.updatePoseEstimate();
         scoreBackdrop(drive);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .setReversed(true)
-                        .strafeToLinearHeading(finalSpikePos,)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-9.5 * randomizationResult, yMod * 9 * ((randomizationResult + 1) % 2))), headingMod), headingMod - Math.PI)
                 .build()
         );
-        waitEx(1000000);
+        drive.ppp.setPosition(ppp_up);
     }
 
     private void autoPreloadedRedFrontStage(@NonNull MecanumDrive drive) {
@@ -385,23 +387,36 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
     }
 
     private void autoPreloadedRedBackStage(@NonNull MecanumDrive drive) {
-
-    }
-
-    public void park(@NonNull MecanumDrive drive) {
+        drive.ppp.setPosition(ppp_down);
         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(drive.pose.position.plus(new Vector2d(-5, 0)), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(finalStart.position.x, finalStart.position.y + 5), finalStart.heading)
+                .splineToSplineHeading(finalBackdropPos, 0)
                 .build()
         );
         drive.updatePoseEstimate();
-        if (Team() == 0 && Park() == 0) {//Blue Far
+        scoreBackdrop(drive);
+        Actions.runBlocking(drive.actionBuilder(drive.pose)
+                .setReversed(true)
+                //TODO Test This Change On Middle
+                .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-9.5 * randomizationResult, yMod * 6 * ((randomizationResult + 1) % 2))), headingMod), headingMod - Math.PI)
+                .build()
+        );
+        drive.ppp.setPosition(ppp_up);
+    }
 
-        } else if (Team() == 0 && Park() == 1) {//Blue Close
-
-        } else if (Team() == 1 && Park() == 0) {//Red Far
-
-        } else if (Team() == 1 && Park() == 1) {//Red Close
-
+    public void park(@NonNull MecanumDrive drive) {
+        if (Park() == 0) {//Far
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, 0)), 0), 0)
+                    .splineToSplineHeading(new Pose2d(parkFar, 0), 0)
+                    .build()
+            );
+        } else if (Park() == 1) {//Close
+            Actions.runBlocking(drive.actionBuilder(drive.pose)
+                    .splineToSplineHeading(new Pose2d(parkClose.plus(new Vector2d(-12, 0)), 0), 0)
+                    .splineToSplineHeading(new Pose2d(parkClose, 0), 0)
+                    .build()
+            );
         }
     }
 
@@ -432,274 +447,5 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
         drive.rightLift.setPower(0.5);
     }
 
-
-    /**
-     * Initialize the AprilTag processor.
-     */
-    public void initAprilTag() {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
-
-
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(2);
-
-        // Create the vision portal by using a builder.
-        visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
-                .addProcessor(aprilTag)
-                .build();
-
-    }
-
-    /**
-     * Manually set the camera gain and exposure.
-     * <p>
-     * This can only be called AFTER calling initAprilTag(), and only works for Webcams;
-     */
-    public void setManualExposure(int exposureMS, int gain) {
-        // Wait for the camera to be open, then use the controls
-
-        if (visionPortal == null) {
-            return;
-        }
-
-        // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            telemetry.addData("Camera", "Waiting");
-            telemetry.update();
-            while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
-                sleep(20);
-            }
-            telemetry.addData("Camera", "Ready");
-            telemetry.update();
-        }
-
-        // Set camera controls unless we are stopping.
-        if (!isStopRequested()) {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-                exposureControl.setMode(ExposureControl.Mode.Manual);
-                sleep(50);
-            }
-            exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
-            sleep(20);
-            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-            gainControl.setGain(gain);
-            sleep(20);
-        }
-    }
-
-    public void telemetryAprilTag() {
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-        // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-            } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
-        }   // end for() loop
-
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-
-    }
-
-    private void goToAprilTag(MecanumDrive drive) {
-        boolean backupTag2Seen = false;
-        boolean backupTagSeen = false;
-        boolean targetFound = false;    // Set to true when an AprilTag target is detected
-        double forward = 0;        // Desired forward power/speed (-1 to +1)
-        double strafe = 0;        // Desired strafe power/speed (-1 to +1)
-        double turn = 0;        // Desired turning power/speed (-1 to +1)
-
-        double rangeError = 1000.0;//inches
-        double headingError = 1000.0;//degrees
-        double yawError = 1000.0;//degrees
-
-        double rangeErrorMargin = 0.5;//inches
-        double headingErrorMargin = 1;//degrees
-        double yawErrorMargin = 1;//degrees
-
-
-        // Use low exposure time to reduce motion blur
-
-        String telemetryData = "";
-
-        timeSinceAprilTag.reset();
-        desiredTag = null;
-        telemetry.addData("Desired Tag", DESIRED_TAG_ID);
-        telemetry.update();
-        while (timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < 4000 && !(Math.abs(rangeError) <= rangeErrorMargin && Math.abs(headingError) <= headingErrorMargin && Math.abs(yawError) <= yawErrorMargin) && opModeIsActive() && !isStopRequested()) {
-//            targetFound = false;
-
-            // Step through the list of detected tags and look for a matching tag
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            for (AprilTagDetection detection : currentDetections) {
-                // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
-                    telemetry.addData("Desired Tag", DESIRED_TAG_ID);
-                    telemetry.addData("Tag Seeing", detection.id);
-                    //  Check to see if we want to track towards this tag.
-                    if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
-                        // Yes, we want to use this tag.
-                        timeSinceSeen.reset();
-                        targetFound = true;
-                        desiredTag = detection;
-                        desiredTagRange = desiredTag.ftcPose.range;
-                        desiredTagBearing = desiredTag.ftcPose.bearing;
-                        desiredTagYaw = desiredTag.ftcPose.yaw;
-                        break;  // don't look any further.
-                    } else if (detection.id == BACKUP_TAG_ID) {
-                        timeSinceBackupTag.reset();
-                        backupTagSeen = true;
-                        break;
-                    } else if (detection.id == BACKUP_TAG2_ID) {
-                        timeSinceBackupTag2.reset();
-                        backupTag2Seen = true;
-                        break;
-                    }
-                }
-            }
-            if (targetFound) {
-                telemetry.addData("DESIRED TAG SEEN", "");
-            }
-            telemetry.update();
-
-            // If we have found the desired target, Drive to target Automatically .
-            if (targetFound || timeSinceSeen.time(TimeUnit.MILLISECONDS) < 1000) {
-
-                // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                rangeError = (desiredTagRange - DESIRED_DISTANCE) + DISTANCE_F;
-                if (!targetFound) {
-                    headingError = 0;
-                    yawError = 0;
-                } else {
-                    headingError = (desiredTagBearing - DESIRED_BEARING) + BEARING_F;
-                    yawError = (desiredTagYaw - DESIRED_YAW) + YAW_F;
-                }
-
-                // Use the speed and turn "gains" to calculate how we want the robot to move.
-                forward = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
-                strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
-            } else {
-                forward = 0;
-                strafe = -0.4 * yMod;
-                turn = 0.04 * yMod;
-            }
-
-
-            moveRobot(forward, strafe, turn, drive);
-            sleep(10);
-            if (!targetFound) {
-                if ((!backupTagBehind && backupTagSeen) || (!backupTag2Behind && backupTag2Seen)) {
-                    rangeError = 0.0;
-                    yawError = 0.0;
-                    headingError = 0.0;
-                }
-            }
-        }
-        moveRobot(0, 0, 0, drive);
-        if (targetFound || backupTagSeen || backupTag2Seen) {
-            tagEverFound = true;
-        }
-
-        if (!targetFound && (backupTagSeen || backupTag2Seen)) {
-            timeSinceAprilTag.reset();
-            boolean done = false;
-            long duration = 0;
-            boolean behind;
-            if (backupTagSeen) {
-                duration = timeSinceBackupTag.time(TimeUnit.MILLISECONDS);
-                behind = backupTagBehind;
-            } else {
-                duration = timeSinceBackupTag2.time(TimeUnit.MILLISECONDS);
-                behind = backupTag2Behind;
-            }
-
-            while (timeSinceAprilTag.time(TimeUnit.MILLISECONDS) < duration && !done && opModeIsActive() && !isStopRequested()) {
-                moveRobot(0, 0.4 * yMod, -0.04 * yMod, drive);
-            }
-        }
-
-        if (targetFound) {
-            switch (DESIRED_TAG_ID) {
-                case 1:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-                case 2:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-                case 3:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, 30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-                case 4:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -30 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-                case 5:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -36 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-                case 6:
-                    updatedPose = new Pose2d(63.34375 - desiredTag.ftcPose.y, -42 - desiredTag.ftcPose.x, Math.toRadians(0 - desiredTag.ftcPose.bearing));
-                    break;
-            }
-        } else {
-            updatedPose = drive.pose;
-        }
-    }
-
-    /**
-     * Move robot according to desired axes motions
-     * <p>
-     * Positive X is forward
-     * <p>
-     * Positive Y is strafe left
-     * <p>
-     * Positive Yaw is counter-clockwise
-     */
-    private void moveRobot(double x, double y, double yaw, @NonNull MecanumDrive drive) {
-        // Calculate wheel powers.
-        double leftFrontPower = x - y - yaw;
-        double rightFrontPower = x + y + yaw;
-        double leftBackPower = x + y - yaw;
-        double rightBackPower = x - y + yaw;
-
-        // Normalize wheel powers to be less than 1.0
-        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
-
-        if (max > 1.0) {
-            leftFrontPower /= max;
-            rightFrontPower /= max;
-            leftBackPower /= max;
-            rightBackPower /= max;
-        }
-
-
-        // Send powers to the wheels.
-        drive.frontLeft.setPower(leftFrontPower);
-        drive.frontRight.setPower(rightFrontPower);
-        drive.backLeft.setPower(leftBackPower);
-        drive.backRight.setPower(rightBackPower);
-    }
 
 }

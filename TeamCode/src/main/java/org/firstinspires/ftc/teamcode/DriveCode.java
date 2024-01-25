@@ -17,7 +17,7 @@ public class DriveCode extends DriveCodeCommon {
         if (isStopRequested()) return;
         while (opModeIsActive() && !isStopRequested()) {
             updateButtons(drive);
-            aprilTagDriving(drive);
+            rawDriving(drive);
             intake(drive);
             outake(drive);
             lift(drive);
