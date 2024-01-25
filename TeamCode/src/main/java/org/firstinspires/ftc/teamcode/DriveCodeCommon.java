@@ -55,6 +55,8 @@ public class DriveCodeCommon extends LinearOpMode {
     private final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     public static int DESIRED_TAG_ID = 5;     // Choose the tag you want to approach or set to -1 for ANY tag.
     public static int DESIRED_TAG_ID2 = 2;     // Choose the tag you want to approach or set to -1 for ANY tag.
+    public static double ppp_up = 0;
+    public static double ppp_down = 0;
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
@@ -310,6 +312,11 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.flipper.setPosition(flipperadjust);
         } else {
             drive.flipper.setPosition(flipperintake);
+        }
+        if (gamepad1.y){
+            drive.ppp.setPosition(ppp_down);
+        }else{
+            drive.ppp.setPosition(ppp_up);
         }
     }
 

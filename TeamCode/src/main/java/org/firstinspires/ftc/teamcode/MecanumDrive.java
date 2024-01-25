@@ -105,7 +105,7 @@ public final class MecanumDrive {
 
     //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
-    public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo;
+    public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo,ppp;
 
     public final VoltageSensor voltageSensor;
 
@@ -202,7 +202,7 @@ public final class MecanumDrive {
         intakeServoL = hardwareMap.get(Servo.class, "isl");
         intakeServoR = hardwareMap.get(Servo.class, "isr");
         dropServo = hardwareMap.get(Servo.class,"ds");
-
+        ppp = hardwareMap.get(Servo.class, "p");
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
