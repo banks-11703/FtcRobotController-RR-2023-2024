@@ -296,7 +296,7 @@ public class DriveCodeCommon extends LinearOpMode {
         }
         drive.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         drive.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (drive.leftLift.getCurrentPosition() < 1930) {
+        if ((drive.leftLift.getCurrentPosition() + drive.rightLift.getCurrentPosition()) < 4000) {
             drive.leftLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
             drive.rightLift.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
         } else {
