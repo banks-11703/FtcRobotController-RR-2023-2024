@@ -24,7 +24,6 @@ public class MeepMeepRunner {
         final Pose2d backdropPos4 = new Pose2d(62, -29, 0);
         final Pose2d backdropPos5 = new Pose2d(62, -35, 0);
         final Pose2d backdropPos6 = new Pose2d(62, -41, 0);
-        Pose2d finalBackdropPos = new Pose2d(0, 0, 0);
         final Vector2d spikePosRedFront = new Vector2d(-36, -36);
         final Vector2d spikePosBlueFront = new Vector2d(-36, 36);
         final Vector2d spikePosRedBack = new Vector2d(12 + 8, -38);
@@ -68,33 +67,39 @@ public class MeepMeepRunner {
                 .build();
 
         int rand = 0;
-        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
-                .splineToSplineHeading(new Pose2d(new Vector2d(-24, -60), 0), 0)
-                .splineToSplineHeading(new Pose2d(new Vector2d(36, -60), Math.toRadians(0)), 0)
-                .build()
-        );
-        blueBackBot.runAction(blueBackBot.getDrive().actionBuilder(blueBackBot.getPose())
-                .strafeToLinearHeading(new Vector2d(startBlueBack.position.x, startBlueBack.position.y - 5), startBlueBack.heading)
-                .splineToSplineHeading(backdropPos2, 0)
-                .waitSeconds(1)
+//        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
+//                .splineToSplineHeading(new Pose2d(new Vector2d(-24, -60), 0), 0)
+//                .splineToSplineHeading(new Pose2d(new Vector2d(36, -60), Math.toRadians(0)), 0)
+//                .build()
+//        );
+        blueFrontBot.runAction(blueFrontBot.getDrive().actionBuilder(blueFrontBot.getPose())
+//                .waitSeconds(5)
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(spikePosBlueBack.plus(new Vector2d(-9.5 * rand, -1 * 11 * ((rand + 1) % 2))), 0), -Math.PI)
+                .splineToSplineHeading(new Pose2d(spikePosBlueFront.plus(new Vector2d(0, 2)), Math.PI / 2), Math.PI / 2)
                 .waitSeconds(1)
-                .splineToSplineHeading(new Pose2d(parkFarBlue.plus(new Vector2d(-12, 0)), 0), 0)
-                .splineToSplineHeading(new Pose2d(parkFarBlue, 0), 0)
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(new Vector2d(-28, 60), 0), 0)
+                .splineToSplineHeading(new Pose2d(new Vector2d(12, 60), Math.toRadians(0)), 0)
+                .waitSeconds(1)
+                .splineToSplineHeading(new Pose2d(24, 52, -Math.PI / 6), -Math.PI / 6)
+                .splineToSplineHeading(new Pose2d(backdropPos2.position.plus(new Vector2d(-3, 1)), 0), 0)
+                .waitSeconds(1)
+                .strafeToLinearHeading(backdropPos2.position.plus(new Vector2d(-18, 1)), 0)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue.plus(new Vector2d(-12, 0)), 0), 0)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue, 0), 0)
                 .build()
         );
 
-//        blueBackBot.runAction(blueBackBot.getDrive().actionBuilder(blueBackBot.getPose())
-//                .build());
+        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
+                .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(blueBackBot)
-//                .addEntity(blueFrontBot)
+//                .addEntity(blueBackBot)
+                .addEntity(blueFrontBot)
 //                .addEntity(redBackBot)
-                .addEntity(redFrontBot)
+//                .addEntity(redFrontBot)
                 .start();
     }
 }
