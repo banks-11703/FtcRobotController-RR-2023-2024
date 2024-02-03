@@ -319,9 +319,9 @@ public class DriveCodeCommon extends LinearOpMode {
     public void launcher(MecanumDrive drive) {
 
         if(dpadL1.isToggled()){
-            drive.launchLatch.setPosition(planeClosed);
-        }else {
             drive.launchLatch.setPosition(planeOpen);
+        }else {
+            drive.launchLatch.setPosition(planeClosed);
         }
         //2
 

@@ -63,10 +63,16 @@ public class MeepMeepRunner {
                 .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 13)
                 .setDimensions(15, 16)
                 .setColorScheme(new ColorSchemeBlueLight())
-                .setStartPose(startRedFront)
+//                .setStartPose(startRedFront)
+                .setStartPose(new Pose2d(-48, -48, -Math.PI / 2))
                 .build();
 
         int rand = 0;
+        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
+                .splineToSplineHeading(new Pose2d(new Vector2d(-24, -60), 0), 0)
+                .splineToSplineHeading(new Pose2d(new Vector2d(36, -60), Math.toRadians(0)), 0)
+                .build()
+        );
         blueBackBot.runAction(blueBackBot.getDrive().actionBuilder(blueBackBot.getPose())
                 .strafeToLinearHeading(new Vector2d(startBlueBack.position.x, startBlueBack.position.y - 5), startBlueBack.heading)
                 .splineToSplineHeading(backdropPos2, 0)
@@ -88,7 +94,7 @@ public class MeepMeepRunner {
                 .addEntity(blueBackBot)
 //                .addEntity(blueFrontBot)
 //                .addEntity(redBackBot)
-//                .addEntity(redFrontBot)
+                .addEntity(redFrontBot)
                 .start();
     }
 }
