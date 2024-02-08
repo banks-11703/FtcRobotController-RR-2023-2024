@@ -108,7 +108,7 @@ public final class MecanumDrive {
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
     public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo, ppp;
 
-    public final Rev2mDistanceSensor boardSensorL, boardSensorR;
+    public final Rev2mDistanceSensor boardSensor;
 
     public final VoltageSensor voltageSensor;
 
@@ -207,8 +207,8 @@ public final class MecanumDrive {
         dropServo = hardwareMap.get(Servo.class,"ds");
         ppp = hardwareMap.get(Servo.class, "p");
 
-        boardSensorL = hardwareMap.get(Rev2mDistanceSensor.class,"bsl");
-        boardSensorR = hardwareMap.get(Rev2mDistanceSensor.class,"bsr");
+//        boardSensorL = hardwareMap.get(Rev2mDistanceSensor.class,"bsl");
+        boardSensor = hardwareMap.get(Rev2mDistanceSensor.class,"bs");
 
 
 

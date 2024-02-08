@@ -86,8 +86,8 @@ public class DriveCodeCommon extends LinearOpMode {
     public static double dropServoDown = 0.05;
     public static double planeClosed = 0.15;
     public static double planeOpen = 0.4;
-    public static double boardRange = 150;
-    public static double boardMin = 20;
+    public static double boardRange = 100;
+    public static double boardMin = 9;
     public static double minSpeed = 0.15;
     int planeTargetPos = 0;
     ElapsedTime planeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -107,16 +107,24 @@ public class DriveCodeCommon extends LinearOpMode {
             return 1;
         }
     }
+//
+//    double boardMultiplier(double distanceL, double distanceR){
+//
+//        if ((distanceL + distanceR) < boardMin && gamepad1.left_stick_y < 0) {
+//            return ((distanceL + distanceR) / boardRange)+minSpeed;
+//        } else {
+//            return 1;
+//        }
+//    }
 
-    double boardMultiplier(double distanceL, double distanceR){
+    double boardMultiplier(double distance){
 
-        if ((distanceL + distanceR) < boardMin && gamepad1.left_stick_y < 0) {
-            return ((distanceL + distanceR) / boardRange)+minSpeed;
+        if ((distance) < boardMin && gamepad1.left_stick_y < 0) {
+            return ((distance) / boardRange)+minSpeed;
         } else {
             return 1;
         }
     }
-
     double forwardIntakeSpeed = -1;
 
     GamepadEx a1 = new GamepadEx();
@@ -174,13 +182,13 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.backLeft.setPower(((-gamepad1.left_stick_y) - gamepad1.left_stick_x + (gamepad1.right_stick_x)) * DriveSpeedMod());
 
     }
-    public void boardDriving(MecanumDrive drive) { // its ick dont use
-        drive.frontLeft.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x + (gamepad1.right_stick_x)) * DriveSpeedMod());
-        drive.frontRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) - gamepad1.left_stick_x - (gamepad1.right_stick_x)) * DriveSpeedMod());
-        drive.backRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x - (gamepad1.right_stick_x )) * DriveSpeedMod());
-        drive.backLeft.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH))) - gamepad1.left_stick_x + (gamepad1.right_stick_x )) * DriveSpeedMod());
-
-    }
+//    public void boardDriving(MecanumDrive drive) { // its ick dont use
+//        drive.frontLeft.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x + (gamepad1.right_stick_x)) * DriveSpeedMod());
+//        drive.frontRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) - gamepad1.left_stick_x - (gamepad1.right_stick_x)) * DriveSpeedMod());
+//        drive.backRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x - (gamepad1.right_stick_x )) * DriveSpeedMod());
+//        drive.backLeft.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH))) - gamepad1.left_stick_x + (gamepad1.right_stick_x )) * DriveSpeedMod());
+//
+//    }
     public void aprilTagDriving(MecanumDrive drive) {
         targetFound = false;
         desiredTag = null;
@@ -282,7 +290,7 @@ public class DriveCodeCommon extends LinearOpMode {
         if(a2.isToggled()) {
             drive.setDrivePowers(new PoseVelocity2d(
                     new Vector2d(
-                            -gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH)),
+                            -gamepad1.left_stick_y * boardMultiplier(drive.boardSensor.getDistance(DistanceUnit.INCH)),
                             -gamepad1.left_stick_x
                     ),
                     -gamepad1.right_stick_x
@@ -417,8 +425,8 @@ public class DriveCodeCommon extends LinearOpMode {
 //        telemetry.addData("Launcher Power; ", drive.planeLauncher.getPower());
         telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
         telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
-        telemetry.addData("Left Distance", drive.boardSensorL.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Right Distance", drive.boardSensorR.getDistance(DistanceUnit.INCH));
+//        telemetry.addData("Left Distance", drive.boardSensorL.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Sensor Distance", drive.boardSensor.getDistance(DistanceUnit.INCH));
         telemetry.update();
     }
 
