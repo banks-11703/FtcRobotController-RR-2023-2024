@@ -5,9 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -19,11 +17,8 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
-import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +89,6 @@ public class DriveCodeCommon extends LinearOpMode {
 
     boolean liftBusy = false;
     boolean slamLift = false;
-    int[] liftTargetPos = {0, 100, 200, 300};
 
     double liftModSum = 0;
     int finalLiftPos = 0;
@@ -107,7 +101,43 @@ public class DriveCodeCommon extends LinearOpMode {
             return 1;
         }
     }
+    double intakeDistance = 0;
+    double outtakeDistance = 0;
+    public static double pixelIntake = 0;
+    public int pixelsInIntake = 0;
+    public static double pixelOuttake = 2.65;
+    boolean intakePixelToggle = false;
+
+    public enum Pixels{
+        none,
+        one,
+        two,
+        outtake
+    }
+//    Pixels intake(){
 //
+//        if (intakeDistance  > pixelIntake && !intakePixelToggle ){
+//            pixelsInIntake++;
+//            intakePixelToggle = true;
+//        }else {
+//            intakePixelToggle = false;
+//        }
+//        if(pixelsInIntake > 2){
+//            return Pixels.outtake;
+//        }
+//        return Pixels.none;
+//    }
+    Pixels outtake(){
+        if (outtakeDistance < pixelOuttake){
+            return Pixels.two;
+        }else {
+            return Pixels.none;
+        }
+    }
+//    Pixels robot(){
+//
+//        return null;
+//    }
 //    double boardMultiplier(double distanceL, double distanceR){
 //
 //        if ((distanceL + distanceR) < boardMin && gamepad1.left_stick_y < 0) {
@@ -149,12 +179,12 @@ public class DriveCodeCommon extends LinearOpMode {
 
     public void Initialization(MecanumDrive drive) {
         telemetry.update();
-        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drive.leftLift.setTargetPosition(liftTargetPos[0]);
-        drive.rightLift.setTargetPosition(liftTargetPos[0]);
-        drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        drive.leftLift.setTargetPosition(liftTargetPos[0]);
+//        drive.rightLift.setTargetPosition(liftTargetPos[0]);
+//        drive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        drive.planeLauncher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -162,7 +192,7 @@ public class DriveCodeCommon extends LinearOpMode {
         waitForStart();
     }
 
-    public void updateButtons(MecanumDrive drive) {
+    public void updateValues(MecanumDrive drive) {
         a1.updateButton(gamepad1.a);
         x1.updateButton(gamepad1.x);
         x2.updateButton(gamepad2.x);
@@ -173,6 +203,8 @@ public class DriveCodeCommon extends LinearOpMode {
         dpadL1.updateButton(gamepad1.dpad_left);
 //        rBumper1.updateButton(gamepad1.right_bumper);
 //        dpadD1.updateButton(gamepad1.dpad_down);
+//        intakeDistance = drive.intakeSensor.getDistance(DistanceUnit.INCH);
+        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
     }
 
     public void rawDriving(MecanumDrive drive) {
@@ -306,24 +338,23 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
     public void intake(MecanumDrive drive) {//1
+
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (x1.isToggled()) {
-            drive.intake.setPower(forwardIntakeSpeed);
+            switch(outtake()){
+                case none:
+                case one:
+                    drive.intake.setPower(forwardIntakeSpeed);
+                    break;
+                case two:
+                    drive.intake.setPower(1);
+                    break;
+
+            }
+
         } else {
             drive.intake.setPower(0);
-        }
-        if (gamepad1.y) {
-            drive.intakeServoL.setPosition(0);
-            drive.intakeServoR.setPosition(1);
-        } else {
-            drive.intakeServoL.setPosition(1);
-            drive.intakeServoR.setPosition(0);
-        }
-        if (dpadD1.isToggled()) {
-            drive.dropServo.setPosition(dropServoDown);
-        } else {
-            drive.dropServo.setPosition(dropServoUp);
         }
         if (gamepad1.y){
             drive.ppp.setPosition(ppp_up);
@@ -331,7 +362,6 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.ppp.setPosition(ppp_down);
         }
     }
-
     public void lift(MecanumDrive drive) {//2
         if (gamepad2.dpad_down) slamLift = true;
         if (slamLift && ((gamepad2.right_trigger + gamepad2.left_trigger >= 0.1) || gamepad2.a)) {
@@ -351,8 +381,7 @@ public class DriveCodeCommon extends LinearOpMode {
         }
 
     }
-
-    public void outake(MecanumDrive drive) {//2
+    public void outtake(MecanumDrive drive) {//2
         if (x2.isHeld()) {
             drive.flipper.setPosition(flipperscore);
         } else if (b2.isHeld()) {
@@ -361,7 +390,6 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.flipper.setPosition(flipperintake);
         }
     }
-
     public void launcher(MecanumDrive drive) {
 
         if(dpadL1.isToggled()){
@@ -418,7 +446,6 @@ public class DriveCodeCommon extends LinearOpMode {
 //                break;
 //        }
     }
-
     public void telemetry(MecanumDrive drive) {
 //        telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
 //        telemetry.addData("Servo Pos: ", drive.launchLatch.getPosition());
@@ -426,7 +453,10 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
         telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
 //        telemetry.addData("Left Distance", drive.boardSensorL.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Sensor Distance", drive.boardSensor.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Board Distance", drive.boardSensor.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Intake Sensor", intakeDistance);
+        telemetry.addData("Outtake Sensor", outtakeDistance);
+        telemetry.addData("pixels in outtake", outtake());
         telemetry.update();
     }
 

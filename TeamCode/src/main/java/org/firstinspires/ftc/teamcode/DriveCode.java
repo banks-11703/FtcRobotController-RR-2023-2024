@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,10 +15,10 @@ public class DriveCode extends DriveCodeCommon {
         waitForStart();
         if (isStopRequested()) return;
         while (opModeIsActive() && !isStopRequested()) {
-            updateButtons(drive);
+            updateValues(drive);
             pidBoardDriving(drive);
             intake(drive);
-            outake(drive);
+            outtake(drive);
             lift(drive);
             telemetry(drive);
             launcher(drive);
