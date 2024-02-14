@@ -102,7 +102,7 @@ public class DriveCodeCommon extends LinearOpMode {
         }
     }
     double intakeDistance = 0;
-    double outtakeDistance = 0;
+    double outtakeDistance = 100;
     public static double pixelIntake = 0;
     public int pixelsInIntake = 0;
     public static double pixelOuttake = 2.65;
@@ -204,7 +204,7 @@ public class DriveCodeCommon extends LinearOpMode {
 //        rBumper1.updateButton(gamepad1.right_bumper);
 //        dpadD1.updateButton(gamepad1.dpad_down);
 //        intakeDistance = drive.intakeSensor.getDistance(DistanceUnit.INCH);
-        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
+//        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
     }
 
     public void rawDriving(MecanumDrive drive) {
