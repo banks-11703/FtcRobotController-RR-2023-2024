@@ -16,12 +16,13 @@ public class DriveCode extends DriveCodeCommon {
         if (isStopRequested()) return;
         while (opModeIsActive() && !isStopRequested()) {
             updateValues(drive);
-            pidBoardDriving(drive);
+            pidDriving(drive);
             intake(drive);
             outtake(drive);
             lift(drive);
             telemetry(drive);
             launcher(drive);
+            lights(drive);
         }
     }
 }

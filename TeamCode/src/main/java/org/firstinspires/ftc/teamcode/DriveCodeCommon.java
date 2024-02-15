@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -51,8 +52,10 @@ public class DriveCodeCommon extends LinearOpMode {
     private final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     public static int DESIRED_TAG_ID = 5;     // Choose the tag you want to approach or set to -1 for ANY tag.
     public static int DESIRED_TAG_ID2 = 2;     // Choose the tag you want to approach or set to -1 for ANY tag.
-    public static double ppp_up = 0.35;
-    public static double ppp_down = 0.925;
+    public static double grabyl_in = 0.4;
+    public static double grabyl_out = 1;
+    public static double grabyr_in = 0.9;
+    public static double grabyr_out = 0;
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
@@ -147,14 +150,14 @@ public class DriveCodeCommon extends LinearOpMode {
 //        }
 //    }
 
-    double boardMultiplier(double distance){
-
-        if ((distance) < boardMin && gamepad1.left_stick_y < 0) {
-            return ((distance) / boardRange)+minSpeed;
-        } else {
-            return 1;
-        }
-    }
+//    double boardMultiplier(double distance){
+//
+//        if ((distance) < boardMin && gamepad1.left_stick_y < 0) {
+//            return ((distance) / boardRange)+minSpeed;
+//        } else {
+//            return 1;
+//        }
+//    }
     double forwardIntakeSpeed = -1;
 
     GamepadEx a1 = new GamepadEx();
@@ -179,6 +182,11 @@ public class DriveCodeCommon extends LinearOpMode {
 
     public void Initialization(MecanumDrive drive) {
         telemetry.update();
+        drive.leftRed.setMode(DigitalChannel.Mode.OUTPUT);
+        drive.leftGreen.setMode(DigitalChannel.Mode.OUTPUT);
+        drive.rightRed.setMode(DigitalChannel.Mode.OUTPUT);
+        drive.rightGreen.setMode(DigitalChannel.Mode.OUTPUT);
+
 //        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        drive.leftLift.setTargetPosition(liftTargetPos[0]);
@@ -201,8 +209,8 @@ public class DriveCodeCommon extends LinearOpMode {
         b2.updateButton(gamepad2.b);
         y2.updateButton(gamepad2.y);
         dpadL1.updateButton(gamepad1.dpad_left);
-//        rBumper1.updateButton(gamepad1.right_bumper);
-//        dpadD1.updateButton(gamepad1.dpad_down);
+        rBumper1.updateButton(gamepad1.right_bumper);
+        dpadD1.updateButton(gamepad1.dpad_down);
 //        intakeDistance = drive.intakeSensor.getDistance(DistanceUnit.INCH);
 //        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
     }
@@ -317,7 +325,7 @@ public class DriveCodeCommon extends LinearOpMode {
                 -gamepad1.right_stick_x
         ));
     }
-
+/*
     public void pidBoardDriving(MecanumDrive drive) {
         if(a2.isToggled()) {
             drive.setDrivePowers(new PoseVelocity2d(
@@ -337,6 +345,8 @@ public class DriveCodeCommon extends LinearOpMode {
             ));
         }
     }
+
+ */
     public void intake(MecanumDrive drive) {//1
 
         if (b1.isHeld()) {
@@ -356,10 +366,17 @@ public class DriveCodeCommon extends LinearOpMode {
         } else {
             drive.intake.setPower(0);
         }
-        if (gamepad1.y){
-            drive.ppp.setPosition(ppp_up);
-        }else{
-            drive.ppp.setPosition(ppp_down);
+//        if (gamepad1.y){
+//            drive.ppp.setPosition(ppp_up);
+//        }else{
+//            drive.ppp.setPosition(ppp_down);
+//        }
+        if (gamepad1.a){
+            drive.grabyL.setPosition(grabyl_in);
+            drive.grabyR.setPosition(grabyr_in);
+        }else {
+            drive.grabyL.setPosition(grabyl_out);
+            drive.grabyR.setPosition(grabyr_out);
         }
     }
     public void lift(MecanumDrive drive) {//2
@@ -458,6 +475,20 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("Outtake Sensor", outtakeDistance);
         telemetry.addData("pixels in outtake", outtake());
         telemetry.update();
+    }
+    public void lights(MecanumDrive drive){
+
+        if(outtake() == Pixels.two || gamepad1.a){//if open
+            drive.leftRed.setState(false);
+            drive.leftGreen.setState(true);
+            drive.rightRed.setState(false);
+            drive.rightGreen.setState(true);
+        }else{//if closed
+            drive.leftRed.setState(true);
+            drive.leftGreen.setState(false);
+            drive.rightRed.setState(true);
+            drive.rightGreen.setState(false);
+        }
     }
 
     /**

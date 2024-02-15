@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -107,8 +108,8 @@ public final class MecanumDrive {
 
     //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
-    public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo, ppp;
-
+    public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo, grabyL, grabyR;
+    public DigitalChannel leftRed, leftGreen, rightRed, rightGreen;
     public final Rev2mDistanceSensor boardSensor;
 //    public final RevColorSensorV3 outtakeSensor;
 
@@ -207,8 +208,13 @@ public final class MecanumDrive {
         intakeServoL = hardwareMap.get(Servo.class, "isl");
         intakeServoR = hardwareMap.get(Servo.class, "isr");
         dropServo = hardwareMap.get(Servo.class,"ds");
-        ppp = hardwareMap.get(Servo.class, "p");
-
+//        ppp = hardwareMap.get(Servo.class, "p");
+        grabyL = hardwareMap.get(Servo.class,"gl");
+        grabyR = hardwareMap.get(Servo.class,"gr");
+        leftGreen = hardwareMap.get(DigitalChannel.class,"lg");
+        leftRed = hardwareMap.get(DigitalChannel.class,"lr");
+        rightGreen = hardwareMap.get(DigitalChannel.class,"rg");
+        rightRed = hardwareMap.get(DigitalChannel.class,"rr");
 
 
 //        boardSensorL = hardwareMap.get(Rev2mDistanceSensor.class,"bsl");
