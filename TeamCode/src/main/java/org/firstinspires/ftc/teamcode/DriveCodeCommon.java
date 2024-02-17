@@ -59,7 +59,6 @@ public class DriveCodeCommon extends LinearOpMode {
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
-
     private double desiredTagRange = 0;
     private double desiredTagBearing = 0;
     private double desiredTagYaw = 0;
@@ -70,7 +69,7 @@ public class DriveCodeCommon extends LinearOpMode {
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     public static double flipperscore = 0.32;
     public static double flipperintake = 0.81;
-    public static double flipperstutter = 0.1;
+    public static double flipperstutter = 0.2;
     public static double flipperadjust = 0;
     public static double planeClosed = 0.15;
     public static double planeOpen = 0.4;
@@ -78,7 +77,11 @@ public class DriveCodeCommon extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     double intakeTimeStamp = 0;
     double outtakeTimeStamp = 0;
-    public static double outtakeLag = 20;
+    double jiggleTimeStamp = 0;
+    boolean jiggle = false;
+    public static double jiggleLag = 250;
+    public static double outtakeLag = 100;
+    public int actions = 0;
 
     public static double intakeLag = 100;
 
@@ -92,15 +95,17 @@ public class DriveCodeCommon extends LinearOpMode {
             return 1;
         }
     }
+
     double outtakeDistance = 0;
     public static double pixelOuttake = 3.5;
 
-    public enum Pixels{
+    public enum Pixels {
         none,
         one,
         two
     }
-//    Pixels intake(){
+
+    //    Pixels intake(){
 //
 //        if (intakeDistance  > pixelIntake && !intakePixelToggle ){
 //            pixelsInIntake++;
@@ -113,14 +118,15 @@ public class DriveCodeCommon extends LinearOpMode {
 //        }
 //        return Pixels.none;
 //    }
-    Pixels outtake(){
-        if (outtakeDistance < pixelOuttake){
+    Pixels outtake() {
+        if (outtakeDistance < pixelOuttake) {
             return Pixels.two;
-        }else {
+        } else {
             return Pixels.none;
         }
     }
-//    Pixels robot(){
+
+    //    Pixels robot(){
 //
 //        return null;
 //    }
@@ -204,7 +210,8 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.backLeft.setPower(((-gamepad1.left_stick_y) - gamepad1.left_stick_x + (gamepad1.right_stick_x)) * DriveSpeedMod());
 
     }
-//    public void boardDriving(MecanumDrive drive) { // its ick dont use
+
+    //    public void boardDriving(MecanumDrive drive) { // its ick dont use
 //        drive.frontLeft.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x + (gamepad1.right_stick_x)) * DriveSpeedMod());
 //        drive.frontRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH),drive.boardSensorR.getDistance(DistanceUnit.INCH))) - gamepad1.left_stick_x - (gamepad1.right_stick_x)) * DriveSpeedMod());
 //        drive.backRight.setPower(((-gamepad1.left_stick_y * boardMultiplier(drive.boardSensorL.getDistance(DistanceUnit.INCH), drive.boardSensorR.getDistance(DistanceUnit.INCH))) + gamepad1.left_stick_x - (gamepad1.right_stick_x )) * DriveSpeedMod());
@@ -307,41 +314,44 @@ public class DriveCodeCommon extends LinearOpMode {
                 -gamepad1.right_stick_x
         ));
     }
-/*
-    public void pidBoardDriving(MecanumDrive drive) {
-        if(a2.isToggled()) {
-            drive.setDrivePowers(new PoseVelocity2d(
-                    new Vector2d(
-                            -gamepad1.left_stick_y * boardMultiplier(drive.boardSensor.getDistance(DistanceUnit.INCH)),
-                            -gamepad1.left_stick_x
-                    ),
-                    -gamepad1.right_stick_x
-            ));
-        }else{
-            drive.setDrivePowers(new PoseVelocity2d(
-                    new Vector2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x
-                    ),
-                    -gamepad1.right_stick_x
-            ));
-        }
-    }
 
- */
+    /*
+        public void pidBoardDriving(MecanumDrive drive) {
+            if(a2.isToggled()) {
+                drive.setDrivePowers(new PoseVelocity2d(
+                        new Vector2d(
+                                -gamepad1.left_stick_y * boardMultiplier(drive.boardSensor.getDistance(DistanceUnit.INCH)),
+                                -gamepad1.left_stick_x
+                        ),
+                        -gamepad1.right_stick_x
+                ));
+            }else{
+                drive.setDrivePowers(new PoseVelocity2d(
+                        new Vector2d(
+                                -gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x
+                        ),
+                        -gamepad1.right_stick_x
+                ));
+            }
+        }
+
+     */
     public void intake(MecanumDrive drive) {//1
 
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (x1.isToggled()) {
-            switch(outtake()){
+            switch (outtake()) {
                 case none:
                 case one:
-                    intakeTimeStamp = timer.time();
-                    drive.intake.setPower(forwardIntakeSpeed);
+                    if (!jiggle) {
+                        intakeTimeStamp = timer.time();
+                        drive.intake.setPower(forwardIntakeSpeed);
+                    }
                     break;
                 case two:
-                    if (intakeTimeStamp+intakeLag < timer.time()){
+                    if (intakeTimeStamp + intakeLag < timer.time()) {
                         drive.intake.setPower(1);
                     }
                     break;
@@ -351,19 +361,15 @@ public class DriveCodeCommon extends LinearOpMode {
         } else {
             drive.intake.setPower(0);
         }
-//        if (gamepad1.y){
-//            drive.ppp.setPosition(ppp_up);
-//        }else{
-//            drive.ppp.setPosition(ppp_down);
-//        }
-        if (gamepad1.a){
+        if (gamepad1.a) {
             drive.grabyL.setPosition(grabyl_in);
             drive.grabyR.setPosition(grabyr_in);
-        }else {
+        } else {
             drive.grabyL.setPosition(grabyl_out);
             drive.grabyR.setPosition(grabyr_out);
         }
     }
+
     public void lift(MecanumDrive drive) {//2
         if (gamepad2.dpad_down) slamLift = true;
         if (slamLift && ((gamepad2.right_trigger + gamepad2.left_trigger >= 0.1) || gamepad2.a)) {
@@ -383,34 +389,50 @@ public class DriveCodeCommon extends LinearOpMode {
         }
 
     }
+
     public void outtake(MecanumDrive drive) {//2
-        switch (outtake()){
+        switch (outtake()) {
             case none:
             case one:
-        if (x2.isHeld()) {
-            drive.flipper.setPosition(flipperscore);
-        } else if (b2.isHeld()) {
-            drive.flipper.setPosition(flipperadjust);
-        } else {
-            drive.flipper.setPosition(flipperintake);
-        }
-        break;
-            case two:
-                if (b2.isHeld()) {
+                if (x2.isHeld()) {
+                    drive.flipper.setPosition(flipperscore);
+                } else if (b2.isHeld()) {
                     drive.flipper.setPosition(flipperadjust);
-                } else if (outtakeTimeStamp + outtakeLag < timer.time()) {
-                    drive.flipper.setPosition(flipperintake - flipperstutter);
-                    outtakeTimeStamp = timer.time();
-                }else{
+                } else {
                     drive.flipper.setPosition(flipperintake);
+                }
+                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()){
+                    jiggle = false;
+                }
+                break;
+            case two:
+                if (x2.isHeld()){
+                    drive.flipper.setPosition(flipperscore);
+                } else if (b2.isHeld()) {
+                    drive.flipper.setPosition(flipperadjust);
+                } else {
+                    if (outtakeTimeStamp + outtakeLag < timer.time()){
+                        if (actions % 2 == 1){
+                            drive.flipper.setPosition(flipperintake - flipperstutter);
+                        }else {
+                            drive.flipper.setPosition(flipperintake);
+                        }
+                        actions++;
+                        jiggle = true;
+                        jiggleTimeStamp = timer.time();
+                        outtakeTimeStamp = timer.time();
+
                 }
         }
     }
+
+}
+
     public void launcher(MecanumDrive drive) {
 
-        if(dpadL1.isToggled()){
+        if (dpadL1.isToggled()) {
             drive.launchLatch.setPosition(planeOpen);
-        }else {
+        } else {
             drive.launchLatch.setPosition(planeClosed);
         }
         //2
@@ -462,6 +484,7 @@ public class DriveCodeCommon extends LinearOpMode {
 //                break;
 //        }
     }
+
     public void telemetry(MecanumDrive drive) {
 //        telemetry.addData("Launcher Velocity: ", drive.planeLauncher.getVelocity());
 //        telemetry.addData("Servo Pos: ", drive.launchLatch.getPosition());
@@ -472,14 +495,15 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("pixels in outtake", outtake());
         telemetry.update();
     }
-    public void lights(MecanumDrive drive){
 
-        if(outtake() == Pixels.two){
+    public void lights(MecanumDrive drive) {
+
+        if (outtake() == Pixels.two) {
             drive.leftRed.setState(false);
             drive.leftGreen.setState(true);
             drive.rightRed.setState(false);
             drive.rightGreen.setState(true);
-        }else{
+        } else {
             drive.leftRed.setState(true);
             drive.leftGreen.setState(false);
             drive.rightRed.setState(true);
@@ -562,7 +586,7 @@ public class DriveCodeCommon extends LinearOpMode {
     /**
      * Manually set the camera gain and exposure.
      * This can only be called AFTER calling initAprilTag(), and only works for Webcams;
-    */
+     */
     public void setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
 
