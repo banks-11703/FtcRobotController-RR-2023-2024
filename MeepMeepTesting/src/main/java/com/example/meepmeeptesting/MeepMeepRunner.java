@@ -17,18 +17,22 @@ public class MeepMeepRunner {
         final Pose2d startRedFront = new Pose2d(-36, -64, Math.toRadians(-90));
         final Pose2d startBlueBack = new Pose2d(12, 64, Math.toRadians(90));
         final Pose2d startRedBack = new Pose2d(12, -64, Math.toRadians(-90));
-        Pose2d finalStart = new Pose2d(0, 0, 0);
-        final Pose2d backdropPos1 = new Pose2d(62, 41, 0);
-        final Pose2d backdropPos2 = new Pose2d(62, 35, 0);
-        final Pose2d backdropPos3 = new Pose2d(62, 29, 0);
-        final Pose2d backdropPos4 = new Pose2d(62, -29, 0);
-        final Pose2d backdropPos5 = new Pose2d(62, -35, 0);
-        final Pose2d backdropPos6 = new Pose2d(62, -41, 0);
+        final Pose2d backdropPos1 = new Pose2d(59.5, 42, 0);
+        final Pose2d backdropPos2 = new Pose2d(59.5, 35, 0);
+        final Pose2d backdropPos3 = new Pose2d(59.5, 27, 0);
+        final Pose2d backdropPos4 = new Pose2d(59.5, -29, 0);
+        final Pose2d backdropPos5 = new Pose2d(59.5, -36, 0);
+        final Pose2d backdropPos6 = new Pose2d(59.5, -42.75, 0);
         final Vector2d spikePosRedFront = new Vector2d(-36, -36);
         final Vector2d spikePosBlueFront = new Vector2d(-36, 36);
         final Vector2d spikePosRedBack = new Vector2d(12 + 8, -38);
         final Vector2d spikePosBlueBack = new Vector2d(12 + 8, 31.5);
-
+        final Pose2d stackPosRedClose = new Pose2d(-62, -36, Math.toRadians(0));
+        final Pose2d stackPosRedMedium = new Pose2d(-62, -24, Math.toRadians(0));
+        final Pose2d stackPosRedFar = new Pose2d(-62, -12, Math.toRadians(0));
+        final Pose2d stackPosBlueFar = new Pose2d(-62, 12, Math.toRadians(0));
+        final Pose2d stackPosBlueMedium = new Pose2d(-62, 24, Math.toRadians(0));
+        final Pose2d stackPosBlueClose = new Pose2d(-62, 36, Math.toRadians(0));
         final Vector2d parkCloseRed = new Vector2d(60, -60);
         final Vector2d parkFarRed = new Vector2d(60, -12);
         final Vector2d parkCloseBlue = new Vector2d(60, 60);
@@ -62,42 +66,29 @@ public class MeepMeepRunner {
                 .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 13)
                 .setDimensions(15, 16)
                 .setColorScheme(new ColorSchemeBlueLight())
-//                .setStartPose(startRedFront)
+                .setStartPose(startRedFront)
                 .setStartPose(new Pose2d(-48, -48, -Math.PI / 2))
                 .build();
 
-        int rand = 0;
-//        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
-//                .splineToSplineHeading(new Pose2d(new Vector2d(-24, -60), 0), 0)
-//                .splineToSplineHeading(new Pose2d(new Vector2d(36, -60), Math.toRadians(0)), 0)
-//                .build()
-//        );
-        blueFrontBot.runAction(blueFrontBot.getDrive().actionBuilder(blueFrontBot.getPose())
-//                .waitSeconds(5)
+
+        int randomizationResult = 1;
+        int yMod = -1;
+        double headingMod = 0;
+        int park = 0;
+        blueBackBot.runAction(blueFrontBot.getDrive().actionBuilder(new Pose2d(spikePosBlueBack.plus(new Vector2d(-12.5 * randomizationResult, yMod * 9.5 * ((randomizationResult + 1) % 2))), headingMod))
+                .strafeToLinearHeading(new Vector2d(36, -10), 0)
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(spikePosBlueFront.plus(new Vector2d(0, 2)), Math.PI / 2), Math.PI / 2)
-                .waitSeconds(1)
-                .setReversed(false)
-                .splineToSplineHeading(new Pose2d(new Vector2d(-28, 60), 0), 0)
-                .splineToSplineHeading(new Pose2d(new Vector2d(12, 60), Math.toRadians(0)), 0)
-                .waitSeconds(1)
-                .splineToSplineHeading(new Pose2d(24, 52, -Math.PI / 6), -Math.PI / 6)
-                .splineToSplineHeading(new Pose2d(backdropPos2.position.plus(new Vector2d(-3, 1)), 0), 0)
-                .waitSeconds(1)
-                .strafeToLinearHeading(backdropPos2.position.plus(new Vector2d(-18, 1)), 0)
-                .splineToSplineHeading(new Pose2d(parkCloseBlue.plus(new Vector2d(-12, 0)), 0), 0)
-                .splineToSplineHeading(new Pose2d(parkCloseBlue, 0), 0)
+                .splineToSplineHeading(new Pose2d(stackPosRedFar.position.plus(new Vector2d(10, 0)), stackPosRedFar.heading), Math.PI)
+                .waitSeconds(0.1)
+                .splineToSplineHeading(stackPosRedFar, Math.PI)
                 .build()
         );
-
-        redFrontBot.runAction(redFrontBot.getDrive().actionBuilder(redFrontBot.getPose())
-                .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(blueBackBot)
-                .addEntity(blueFrontBot)
+                .addEntity(blueBackBot)
+//                .addEntity(blueFrontBot)
 //                .addEntity(redBackBot)
 //                .addEntity(redFrontBot)
                 .start();
