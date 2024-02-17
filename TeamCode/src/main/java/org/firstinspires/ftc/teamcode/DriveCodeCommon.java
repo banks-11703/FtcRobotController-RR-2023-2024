@@ -68,33 +68,21 @@ public class DriveCodeCommon extends LinearOpMode {
     double strafe = 0;        // Desired strafe power/speed (-1 to +1)
     double turn = 0;        // Desired turning power/speed (-1 to +1)
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    public double latchClosed = 0;
-    public double latchOpen1 = 0.5;
-    public double latchOpen2 = 1;
-
-
-    //    public static double[] latch = {latchClosed,latchOpen1,latchOpen2};
-    double[] latch = {0.74, 0.79, 0.9};
     public static double flipperscore = 0.32;
-    public static double flipperintake = 0.86;
-    public static double flipperadjust = 0.2;
-    int backSpeed = -200;
-    public static int forwardSpeed = 2300;
-    public static double dropServoUp = 1;
-    public static double dropServoDown = 0.05;
+    public static double flipperintake = 0.81;
+    public static double flipperstutter = 0.1;
+    public static double flipperadjust = 0;
     public static double planeClosed = 0.15;
     public static double planeOpen = 0.4;
-    public static double boardRange = 100;
-    public static double boardMin = 9;
-    public static double minSpeed = 0.15;
-    int planeTargetPos = 0;
-    ElapsedTime planeTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
-    boolean liftBusy = false;
+    ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    double intakeTimeStamp = 0;
+    double outtakeTimeStamp = 0;
+    public static double outtakeLag = 20;
+
+    public static double intakeLag = 100;
+
     boolean slamLift = false;
-
-    double liftModSum = 0;
-    int finalLiftPos = 0;
     double driveSpeedMod = 1;
 
     double DriveSpeedMod() {
@@ -104,18 +92,13 @@ public class DriveCodeCommon extends LinearOpMode {
             return 1;
         }
     }
-    double intakeDistance = 0;
-    double outtakeDistance = 100;
-    public static double pixelIntake = 0;
-    public int pixelsInIntake = 0;
-    public static double pixelOuttake = 2.65;
-    boolean intakePixelToggle = false;
+    double outtakeDistance = 0;
+    public static double pixelOuttake = 3.5;
 
     public enum Pixels{
         none,
         one,
-        two,
-        outtake
+        two
     }
 //    Pixels intake(){
 //
@@ -149,7 +132,6 @@ public class DriveCodeCommon extends LinearOpMode {
 //            return 1;
 //        }
 //    }
-
 //    double boardMultiplier(double distance){
 //
 //        if ((distance) < boardMin && gamepad1.left_stick_y < 0) {
@@ -212,7 +194,7 @@ public class DriveCodeCommon extends LinearOpMode {
         rBumper1.updateButton(gamepad1.right_bumper);
         dpadD1.updateButton(gamepad1.dpad_down);
 //        intakeDistance = drive.intakeSensor.getDistance(DistanceUnit.INCH);
-//        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
+        outtakeDistance = drive.outtakeSensor.getDistance(DistanceUnit.INCH);
     }
 
     public void rawDriving(MecanumDrive drive) {
@@ -355,10 +337,13 @@ public class DriveCodeCommon extends LinearOpMode {
             switch(outtake()){
                 case none:
                 case one:
+                    intakeTimeStamp = timer.time();
                     drive.intake.setPower(forwardIntakeSpeed);
                     break;
                 case two:
-                    drive.intake.setPower(1);
+                    if (intakeTimeStamp+intakeLag < timer.time()){
+                        drive.intake.setPower(1);
+                    }
                     break;
 
             }
@@ -399,12 +384,26 @@ public class DriveCodeCommon extends LinearOpMode {
 
     }
     public void outtake(MecanumDrive drive) {//2
+        switch (outtake()){
+            case none:
+            case one:
         if (x2.isHeld()) {
             drive.flipper.setPosition(flipperscore);
         } else if (b2.isHeld()) {
             drive.flipper.setPosition(flipperadjust);
         } else {
             drive.flipper.setPosition(flipperintake);
+        }
+        break;
+            case two:
+                if (b2.isHeld()) {
+                    drive.flipper.setPosition(flipperadjust);
+                } else if (outtakeTimeStamp + outtakeLag < timer.time()) {
+                    drive.flipper.setPosition(flipperintake - flipperstutter);
+                    outtakeTimeStamp = timer.time();
+                }else{
+                    drive.flipper.setPosition(flipperintake);
+                }
         }
     }
     public void launcher(MecanumDrive drive) {
@@ -469,21 +468,18 @@ public class DriveCodeCommon extends LinearOpMode {
 //        telemetry.addData("Launcher Power; ", drive.planeLauncher.getPower());
         telemetry.addData("Lift encoder Left", drive.leftLift.getCurrentPosition());
         telemetry.addData("Lift encoder Right", drive.rightLift.getCurrentPosition());
-//        telemetry.addData("Left Distance", drive.boardSensorL.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Board Distance", drive.boardSensor.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Intake Sensor", intakeDistance);
         telemetry.addData("Outtake Sensor", outtakeDistance);
         telemetry.addData("pixels in outtake", outtake());
         telemetry.update();
     }
     public void lights(MecanumDrive drive){
 
-        if(outtake() == Pixels.two || gamepad1.a){//if open
+        if(outtake() == Pixels.two){
             drive.leftRed.setState(false);
             drive.leftGreen.setState(true);
             drive.rightRed.setState(false);
             drive.rightGreen.setState(true);
-        }else{//if closed
+        }else{
             drive.leftRed.setState(true);
             drive.leftGreen.setState(false);
             drive.rightRed.setState(true);
