@@ -148,7 +148,8 @@ public class DriveCodeCommon extends LinearOpMode {
 //    }
     double forwardIntakeSpeed = -1;
 
-    GamepadEx a1 = new GamepadEx();
+    GamepadEx y1 = new GamepadEx();//intake override
+    GamepadEx a1 = new GamepadEx();//flippers
     GamepadEx x1 = new GamepadEx();//intake
     GamepadEx b1 = new GamepadEx();//intake out
     GamepadEx x2 = new GamepadEx();//outtake
@@ -189,6 +190,7 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void updateValues(MecanumDrive drive) {
+        y1.updateButton(gamepad1.y);
         a1.updateButton(gamepad1.a);
         x1.updateButton(gamepad1.x);
         x2.updateButton(gamepad2.x);
@@ -338,7 +340,6 @@ public class DriveCodeCommon extends LinearOpMode {
 
      */
     public void intake(MecanumDrive drive) {//1
-
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (x1.isToggled()) {
@@ -361,7 +362,80 @@ public class DriveCodeCommon extends LinearOpMode {
         } else {
             drive.intake.setPower(0);
         }
-        if (gamepad1.a) {
+        if (a1.isHeld()) {
+            drive.grabyL.setPosition(grabyl_in);
+            drive.grabyR.setPosition(grabyr_in);
+        } else {
+            drive.grabyL.setPosition(grabyl_out);
+            drive.grabyR.setPosition(grabyr_out);
+        }
+    }
+
+    int tracker = 0;
+    double pixelSeenTimeStamp = 0;
+    double delayTimeStamp = 0;
+    int delayDuration = 500;
+    int jiggleCounter = 0;
+    boolean jiggling = false;
+    public void altIntake(MecanumDrive drive) {
+        if (timer.time() - pixelSeenTimeStamp >= 3000 && outtake() == Pixels.none) {
+            tracker = 0;
+        } else if (outtake() == Pixels.two) {
+            pixelSeenTimeStamp = timer.time();
+        }
+        if (b1.isHeld()) {
+            drive.intake.setPower(1);
+        } else if (y1.isHeld()) {
+            drive.intake.setPower(forwardIntakeSpeed);
+        } else if (x1.isToggled()) {
+            switch (tracker) {//
+                case 0://awaiting pixels
+                    drive.intake.setPower(forwardIntakeSpeed);
+                    if (outtake() == Pixels.two) {
+                        tracker = 1;
+                        delayTimeStamp = timer.time();
+                    }
+                    break;
+                case 1://detected for the first time in a while
+                    if (timer.time() - delayTimeStamp >= delayDuration) {
+                        if (outtake() == Pixels.none) {
+                            tracker = 2;
+                        } else {
+                            tracker = 3;
+                            jiggling = true;
+                            jiggleTimeStamp=timer.time();
+                        }
+                    }
+                    break;
+                case 2://nothing detected
+                    if (outtake() == Pixels.two) {
+                        tracker = 3;
+                        jiggling = true;
+                        jiggleTimeStamp=timer.time();
+                    }
+                    break;
+                case 3://jiggling
+                    drive.intake.setPower(0);
+                    if (jiggleCounter == 2) {
+                        jiggling = false;
+                        if (outtake() == Pixels.none) {
+                            tracker = 2;
+                        } else {
+                            tracker = 4;
+                        }
+                    }
+                    break;
+                case 4://overfull
+                    drive.intake.setPower(1);
+                    if (outtake() == Pixels.none) {
+                        tracker = 2;
+                    }
+                    break;
+            }
+        } else {
+            drive.intake.setPower(0);
+        }
+        if (a1.isHeld()) {
             drive.grabyL.setPosition(grabyl_in);
             drive.grabyR.setPosition(grabyr_in);
         } else {
@@ -396,25 +470,27 @@ public class DriveCodeCommon extends LinearOpMode {
             case one:
                 if (x2.isHeld()) {
                     drive.flipper.setPosition(flipperscore);
+                    tracker = 0;
                 } else if (b2.isHeld()) {
                     drive.flipper.setPosition(flipperadjust);
                 } else {
                     drive.flipper.setPosition(flipperintake);
                 }
-                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()){
+                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()) {
                     jiggle = false;
                 }
                 break;
             case two:
-                if (x2.isHeld()){
+                if (x2.isHeld()) {
                     drive.flipper.setPosition(flipperscore);
+                    tracker = 0;
                 } else if (b2.isHeld()) {
                     drive.flipper.setPosition(flipperadjust);
                 } else {
-                    if (outtakeTimeStamp + outtakeLag < timer.time()){
-                        if (actions % 2 == 1){
+                    if (outtakeTimeStamp + outtakeLag < timer.time()) {
+                        if (actions % 2 == 1) {
                             drive.flipper.setPosition(flipperintake - flipperstutter);
-                        }else {
+                        } else {
                             drive.flipper.setPosition(flipperintake);
                         }
                         actions++;
@@ -422,11 +498,33 @@ public class DriveCodeCommon extends LinearOpMode {
                         jiggleTimeStamp = timer.time();
                         outtakeTimeStamp = timer.time();
 
+                    }
                 }
         }
+
     }
 
-}
+    public void altOuttake(MecanumDrive drive) {
+        if (x2.isHeld()) {
+            drive.flipper.setPosition(flipperscore);
+            tracker = 0;
+        } else if (b2.isHeld()) {
+            drive.flipper.setPosition(flipperadjust);
+        } else if (jiggling) {
+            if(timer.time()-jiggleTimeStamp>=200) {
+                actions++;
+                jiggleCounter++;
+                jiggleTimeStamp=timer.time();
+            }
+            if (actions % 2 == 1) {
+                drive.flipper.setPosition(flipperintake - flipperstutter);
+            } else {
+                drive.flipper.setPosition(flipperintake);
+            }
+        } else {
+            drive.flipper.setPosition(flipperintake);
+        }
+    }
 
     public void launcher(MecanumDrive drive) {
 
