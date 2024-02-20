@@ -377,6 +377,7 @@ public class DriveCodeCommon extends LinearOpMode {
     int delayDuration = 500;
     int jiggleCounter = 0;
     boolean jiggling = false;
+
     public void altIntake(MecanumDrive drive) {
         if (timer.time() - pixelSeenTimeStamp >= 3000 && outtake() == Pixels.none) {
             tracker = 0;
@@ -403,7 +404,7 @@ public class DriveCodeCommon extends LinearOpMode {
                         } else {
                             tracker = 3;
                             jiggling = true;
-                            jiggleTimeStamp=timer.time();
+                            jiggleTimeStamp = timer.time();
                         }
                     }
                     break;
@@ -411,7 +412,7 @@ public class DriveCodeCommon extends LinearOpMode {
                     if (outtake() == Pixels.two) {
                         tracker = 3;
                         jiggling = true;
-                        jiggleTimeStamp=timer.time();
+                        jiggleTimeStamp = timer.time();
                     }
                     break;
                 case 3://jiggling
@@ -510,11 +511,12 @@ public class DriveCodeCommon extends LinearOpMode {
             tracker = 0;
         } else if (b2.isHeld()) {
             drive.flipper.setPosition(flipperadjust);
+            tracker = 0;
         } else if (jiggling) {
-            if(timer.time()-jiggleTimeStamp>=200) {
+            if (timer.time() - jiggleTimeStamp >= 200) {
                 actions++;
                 jiggleCounter++;
-                jiggleTimeStamp=timer.time();
+                jiggleTimeStamp = timer.time();
             }
             if (actions % 2 == 1) {
                 drive.flipper.setPosition(flipperintake - flipperstutter);
