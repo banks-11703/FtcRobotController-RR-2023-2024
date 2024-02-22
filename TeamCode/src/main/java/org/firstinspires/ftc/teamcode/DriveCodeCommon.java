@@ -69,7 +69,7 @@ public class DriveCodeCommon extends LinearOpMode {
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     public static double flipperscore = 0.32;
     public static double flipperintake = 0.81;
-    public static double flipperstutter = 0.2;
+    public static double flipperstutter = 0.15;
     public static double flipperadjust = 0;
     public static double planeClosed = 0.15;
     public static double planeOpen = 0.4;
@@ -343,21 +343,22 @@ public class DriveCodeCommon extends LinearOpMode {
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (x1.isToggled()) {
-            switch (outtake()) {
-                case none:
-                case one:
-                    if (!jiggle) {
-                        intakeTimeStamp = timer.time();
-                        drive.intake.setPower(forwardIntakeSpeed);
-                    }
-                    break;
-                case two:
-                    if (intakeTimeStamp + intakeLag < timer.time()) {
-                        drive.intake.setPower(1);
-                    }
-                    break;
-
-            }
+            drive.intake.setPower(forwardIntakeSpeed);
+//            switch (outtake()) {
+//                case none:
+//                case one:
+//                    if (!jiggle) {
+//                        intakeTimeStamp = timer.time();
+//                        drive.intake.setPower(forwardIntakeSpeed);
+//                    }
+//                    break;
+//                case two:
+//                    if (intakeTimeStamp + intakeLag < timer.time()) {
+//                        drive.intake.setPower(1);
+//                    }
+//                    break;
+//
+//            }
 
         } else {
             drive.intake.setPower(0);
@@ -372,66 +373,18 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     int tracker = 0;
-    double pixelSeenTimeStamp = 0;
-    double delayTimeStamp = 0;
-    int delayDuration = 500;
-    int jiggleCounter = 0;
     boolean jiggling = false;
 
     public void altIntake(MecanumDrive drive) {
-        if (timer.time() - pixelSeenTimeStamp >= 3000 && outtake() == Pixels.none) {
-            tracker = 0;
-        } else if (outtake() == Pixels.two) {
-            pixelSeenTimeStamp = timer.time();
-        }
         if (b1.isHeld()) {
             drive.intake.setPower(1);
         } else if (y1.isHeld()) {
             drive.intake.setPower(forwardIntakeSpeed);
         } else if (x1.isToggled()) {
-            switch (tracker) {//
-                case 0://awaiting pixels
-                    drive.intake.setPower(forwardIntakeSpeed);
-                    if (outtake() == Pixels.two) {
-                        tracker = 1;
-                        delayTimeStamp = timer.time();
-                    }
-                    break;
-                case 1://detected for the first time in a while
-                    if (timer.time() - delayTimeStamp >= delayDuration) {
-                        if (outtake() == Pixels.none) {
-                            tracker = 2;
-                        } else {
-                            tracker = 3;
-                            jiggling = true;
-                            jiggleTimeStamp = timer.time();
-                        }
-                    }
-                    break;
-                case 2://nothing detected
-                    if (outtake() == Pixels.two) {
-                        tracker = 3;
-                        jiggling = true;
-                        jiggleTimeStamp = timer.time();
-                    }
-                    break;
-                case 3://jiggling
-                    drive.intake.setPower(0);
-                    if (jiggleCounter == 2) {
-                        jiggling = false;
-                        if (outtake() == Pixels.none) {
-                            tracker = 2;
-                        } else {
-                            tracker = 4;
-                        }
-                    }
-                    break;
-                case 4://overfull
-                    drive.intake.setPower(1);
-                    if (outtake() == Pixels.none) {
-                        tracker = 2;
-                    }
-                    break;
+            if ((outtake() == Pixels.two && gamepad1.left_stick_y < 0) && false) {
+                drive.intake.setPower(1);
+            } else {
+                drive.intake.setPower(forwardIntakeSpeed);
             }
         } else {
             drive.intake.setPower(0);
@@ -477,9 +430,9 @@ public class DriveCodeCommon extends LinearOpMode {
                 } else {
                     drive.flipper.setPosition(flipperintake);
                 }
-                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()) {
-                    jiggle = false;
-                }
+//                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()) {
+//                    jiggle = false;
+//                }
                 break;
             case two:
                 if (x2.isHeld()) {
@@ -488,34 +441,35 @@ public class DriveCodeCommon extends LinearOpMode {
                 } else if (b2.isHeld()) {
                     drive.flipper.setPosition(flipperadjust);
                 } else {
-                    if (outtakeTimeStamp + outtakeLag < timer.time()) {
-                        if (actions % 2 == 1) {
-                            drive.flipper.setPosition(flipperintake - flipperstutter);
-                        } else {
-                            drive.flipper.setPosition(flipperintake);
-                        }
-                        actions++;
-                        jiggle = true;
-                        jiggleTimeStamp = timer.time();
-                        outtakeTimeStamp = timer.time();
-
-                    }
+//                    if (outtakeTimeStamp + outtakeLag < timer.time()) {
+//                        if (actions % 2 == 1) {
+//                            drive.flipper.setPosition(flipperintake - flipperstutter);
+//                        } else {
+                    drive.flipper.setPosition(flipperintake);
+//                        }
+//                        actions++;
+//                        jiggle = true;
+//                        jiggleTimeStamp = timer.time();
+//                        outtakeTimeStamp = timer.time();
+//                    }
                 }
         }
 
     }
 
     public void altOuttake(MecanumDrive drive) {
+        if(a2.isPressed()) {
+            jiggling=!jiggling;
+        }
         if (x2.isHeld()) {
             drive.flipper.setPosition(flipperscore);
-            tracker = 0;
+            jiggling = false;
         } else if (b2.isHeld()) {
             drive.flipper.setPosition(flipperadjust);
-            tracker = 0;
+            jiggling = false;
         } else if (jiggling) {
-            if (timer.time() - jiggleTimeStamp >= 200) {
+            if (timer.time() - jiggleTimeStamp >= 250) {
                 actions++;
-                jiggleCounter++;
                 jiggleTimeStamp = timer.time();
             }
             if (actions % 2 == 1) {
