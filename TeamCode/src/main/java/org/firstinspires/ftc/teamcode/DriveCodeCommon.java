@@ -342,24 +342,10 @@ public class DriveCodeCommon extends LinearOpMode {
     public void intake(MecanumDrive drive) {//1
         if (b1.isHeld()) {
             drive.intake.setPower(1);
-        } else if (x1.isToggled()) {
+        } else if (x1.isToggled() && outtake() == Pixels.two && Math.abs(gamepad1.left_stick_y) > 0.2) {
+            drive.intake.setPower(1);
+        } else if (x1.isToggled()){
             drive.intake.setPower(forwardIntakeSpeed);
-//            switch (outtake()) {
-//                case none:
-//                case one:
-//                    if (!jiggle) {
-//                        intakeTimeStamp = timer.time();
-//                        drive.intake.setPower(forwardIntakeSpeed);
-//                    }
-//                    break;
-//                case two:
-//                    if (intakeTimeStamp + intakeLag < timer.time()) {
-//                        drive.intake.setPower(1);
-//                    }
-//                    break;
-//
-//            }
-
         } else {
             drive.intake.setPower(0);
         }
@@ -419,47 +405,28 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     public void outtake(MecanumDrive drive) {//2
-        switch (outtake()) {
-            case none:
-            case one:
-                if (x2.isHeld()) {
-                    drive.flipper.setPosition(flipperscore);
-                    tracker = 0;
-                } else if (b2.isHeld()) {
-                    drive.flipper.setPosition(flipperadjust);
-                } else {
-                    drive.flipper.setPosition(flipperintake);
-                }
-//                if (jiggle && jiggleTimeStamp + jiggleLag < timer.time()) {
-//                    jiggle = false;
-//                }
-                break;
-            case two:
-                if (x2.isHeld()) {
-                    drive.flipper.setPosition(flipperscore);
-                    tracker = 0;
-                } else if (b2.isHeld()) {
-                    drive.flipper.setPosition(flipperadjust);
-                } else {
-//                    if (outtakeTimeStamp + outtakeLag < timer.time()) {
-//                        if (actions % 2 == 1) {
-//                            drive.flipper.setPosition(flipperintake - flipperstutter);
-//                        } else {
-                    drive.flipper.setPosition(flipperintake);
-//                        }
-//                        actions++;
-//                        jiggle = true;
-//                        jiggleTimeStamp = timer.time();
-//                        outtakeTimeStamp = timer.time();
-//                    }
-                }
+        if (x2.isHeld()) {
+            drive.flipper.setPosition(flipperscore);
+        } else if (b2.isHeld()) {
+            drive.flipper.setPosition(flipperadjust);
+        } else if (a2.isHeld()) {
+            if (timer.time() - jiggleTimeStamp >= jiggleLag) {
+                actions++;
+                jiggleTimeStamp = timer.time();
+            }
+            if (actions % 2 == 1) {
+                drive.flipper.setPosition(flipperintake - flipperstutter);
+            } else {
+                drive.flipper.setPosition(flipperintake);
+            }
+        } else {
+            drive.flipper.setPosition(flipperintake);
         }
-
     }
 
     public void altOuttake(MecanumDrive drive) {
-        if(a2.isPressed()) {
-            jiggling=!jiggling;
+        if (a2.isPressed()) {
+            jiggling = !jiggling;
         }
         if (x2.isHeld()) {
             drive.flipper.setPosition(flipperscore);
@@ -574,7 +541,8 @@ public class DriveCodeCommon extends LinearOpMode {
      * <p>
      * Positive Yaw is counter-clockwise
      */
-    public void moveRobot(double x, double y, double yaw, boolean reversedDriving, MecanumDrive drive) {
+    public void moveRobot(double x, double y, double yaw,
+                          boolean reversedDriving, MecanumDrive drive) {
         // Calculate wheel powers.
         int powerMod = 1;
         if (reversedDriving) {

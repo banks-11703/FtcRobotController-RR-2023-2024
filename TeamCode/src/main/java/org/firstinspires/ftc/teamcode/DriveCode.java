@@ -17,8 +17,8 @@ public class DriveCode extends DriveCodeCommon {
         while (opModeIsActive() && !isStopRequested()) {
             updateValues(drive);
             pidDriving(drive);
-            altIntake(drive);
-            altOuttake(drive);
+            intake(drive);
+            outtake(drive);
             lift(drive);
             telemetry(drive);
             launcher(drive);
