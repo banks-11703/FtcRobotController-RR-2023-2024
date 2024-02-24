@@ -79,7 +79,7 @@ public class DriveCodeCommon extends LinearOpMode {
     double outtakeTimeStamp = 0;
     double jiggleTimeStamp = 0;
     boolean jiggle = false;
-    public static double jiggleLag = 250;
+    public static double jiggleLag = 125;
     public static double outtakeLag = 100;
     public int actions = 0;
 
@@ -97,7 +97,7 @@ public class DriveCodeCommon extends LinearOpMode {
     }
 
     double outtakeDistance = 0;
-    public static double pixelOuttake = 3.5;
+    public static double pixelOuttake = 0.75;
 
     public enum Pixels {
         none,
@@ -340,11 +340,11 @@ public class DriveCodeCommon extends LinearOpMode {
 
      */
     public void intake(MecanumDrive drive) {//1
-        if (b1.isHeld()) {
+        if (b1.isHeld() || a2.isHeld()) {
             drive.intake.setPower(1);
-        } else if (x1.isToggled() && outtake() == Pixels.two && Math.abs(gamepad1.left_stick_y) > 0.2) {
+        } /*else if (x1.isToggled() && outtake() == Pixels.two && Math.abs(gamepad1.left_stick_y) > 0.2) {
             drive.intake.setPower(1);
-        } else if (x1.isToggled()){
+        } */else if (x1.isToggled()){
             drive.intake.setPower(forwardIntakeSpeed);
         } else {
             drive.intake.setPower(0);
@@ -409,7 +409,7 @@ public class DriveCodeCommon extends LinearOpMode {
             drive.flipper.setPosition(flipperscore);
         } else if (b2.isHeld()) {
             drive.flipper.setPosition(flipperadjust);
-        } else if (a2.isHeld()) {
+        } else if (y2.isHeld()) {
             if (timer.time() - jiggleTimeStamp >= jiggleLag) {
                 actions++;
                 jiggleTimeStamp = timer.time();

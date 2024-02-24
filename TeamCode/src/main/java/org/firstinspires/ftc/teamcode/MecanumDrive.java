@@ -110,7 +110,7 @@ public final class MecanumDrive {
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
     public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo, grabyL, grabyR;
     public DigitalChannel leftRed, leftGreen, rightRed, rightGreen;
-    public final Rev2mDistanceSensor outtakeSensor;
+    public final RevColorSensorV3 outtakeSensor;
 //    public final RevColorSensorV3 outtakeSensor;
 
     public final VoltageSensor voltageSensor;
@@ -218,7 +218,7 @@ public final class MecanumDrive {
 
 
 //        boardSensorL = hardwareMap.get(Rev2mDistanceSensor.class,"bsl");
-        outtakeSensor = hardwareMap.get(Rev2mDistanceSensor.class,"bs");
+        outtakeSensor = hardwareMap.get(RevColorSensorV3.class,"bs");
 //        intakeSensor = hardwareMap.get(Rev2mDistanceSensor.class, "is");
 //        outtakeSensor = hardwareMap.get(RevColorSensorV3.class, "os");
 

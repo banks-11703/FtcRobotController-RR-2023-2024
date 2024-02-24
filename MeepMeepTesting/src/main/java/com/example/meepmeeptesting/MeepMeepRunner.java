@@ -75,20 +75,21 @@ public class MeepMeepRunner {
         int yMod = -1;
         double headingMod = 0;
         int park = 0;
-        blueBackBot.runAction(blueFrontBot.getDrive().actionBuilder(new Pose2d(spikePosBlueBack.plus(new Vector2d(-12.5 * randomizationResult, yMod * 9.5 * ((randomizationResult + 1) % 2))), headingMod))
-                .strafeToLinearHeading(new Vector2d(36, -10), 0)
+        blueFrontBot.runAction(blueFrontBot.getDrive().actionBuilder(blueFrontBot.getPose())
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(stackPosRedFar.position.plus(new Vector2d(10, 0)), stackPosRedFar.heading), Math.PI)
-                .waitSeconds(0.1)
-                .splineToSplineHeading(stackPosRedFar, Math.PI)
+                .splineToSplineHeading(new Pose2d(spikePosBlueFront.plus(new Vector2d(1, -4)), Math.PI), 0)
+                .setReversed(true)
+                .strafeToLinearHeading(new Vector2d(spikePosBlueFront.x - 6, spikePosBlueFront.y - 4), Math.PI)
+                .splineToSplineHeading(new Pose2d(stackPosBlueClose.position.plus(new Vector2d(5, 0)), 0), Math.PI)
+                .splineToSplineHeading(stackPosBlueClose, Math.PI)
                 .build()
         );
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(blueBackBot)
-//                .addEntity(blueFrontBot)
+//                .addEntity(blueBackBot)
+                .addEntity(blueFrontBot)
 //                .addEntity(redBackBot)
 //                .addEntity(redFrontBot)
                 .start();
