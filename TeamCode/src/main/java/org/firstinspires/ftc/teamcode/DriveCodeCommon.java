@@ -71,8 +71,8 @@ public class DriveCodeCommon extends LinearOpMode {
     public static double flipperintake = 0.81;
     public static double flipperstutter = 0.15;
     public static double flipperadjust = 0;
-    public static double planeClosed = 0.15;
-    public static double planeOpen = 0.4;
+    public static double planeClosed = 0.05;
+    public static double planeOpen = 0.5;
 
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     double intakeTimeStamp = 0;
@@ -541,8 +541,7 @@ public class DriveCodeCommon extends LinearOpMode {
      * <p>
      * Positive Yaw is counter-clockwise
      */
-    public void moveRobot(double x, double y, double yaw,
-                          boolean reversedDriving, MecanumDrive drive) {
+    public void moveRobot(double x, double y, double yaw, boolean reversedDriving, MecanumDrive drive) {
         // Calculate wheel powers.
         int powerMod = 1;
         if (reversedDriving) {
