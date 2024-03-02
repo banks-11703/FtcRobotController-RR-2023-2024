@@ -82,11 +82,11 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain      = 0.75;
-        public double lateralGain    = 0.75;
-        public double headingGain    = 0.9; // shared with turn
+        public double axialGain = 3;
+        public double lateralGain = 3;
+        public double headingGain = 3; // shared with turn
 
-        public double axialVelGain   = 0.1;
+        public double axialVelGain = 0.1;
         public double lateralVelGain = 0.1;
         public double headingVelGain = 0.1; // shared with turn
     }
@@ -108,7 +108,7 @@ public final class MecanumDrive {
 
     //    public final DcMotorEx frontLeft, backLeft, backRight, frontRight;
     public final DcMotorEx frontLeft, backLeft, backRight, frontRight, leftLift, rightLift, intake /*, planeLauncher*/;
-    public final Servo outakeLatch,flipper,launchLatch, intakeServoL, intakeServoR, dropServo, grabyL, grabyR;
+    public final Servo outakeLatch, flipper, launchLatch, intakeServoL, intakeServoR, dropServo, grabyL, grabyR;
     public DigitalChannel leftRed, leftGreen, rightRed, rightGreen;
     public final RevColorSensorV3 outtakeSensor;
 //    public final RevColorSensorV3 outtakeSensor;
@@ -194,31 +194,31 @@ public final class MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        frontLeft = hardwareMap.get(DcMotorEx .class, "fl");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "fl");
         backLeft = hardwareMap.get(DcMotorEx.class, "bl");
         backRight = hardwareMap.get(DcMotorEx.class, "br");
         frontRight = hardwareMap.get(DcMotorEx.class, "fr");
-        leftLift = hardwareMap.get(DcMotorEx.class,"ll");
-        rightLift = hardwareMap.get(DcMotorEx.class,"rl");
+        leftLift = hardwareMap.get(DcMotorEx.class, "ll");
+        rightLift = hardwareMap.get(DcMotorEx.class, "rl");
         intake = hardwareMap.get(DcMotorEx.class, "i");
 //        planeLauncher = hardwareMap.get(DcMotorEx.class,"pl");
-        outakeLatch = hardwareMap.get(Servo.class,"o");
-        flipper = hardwareMap.get(Servo.class,"f");
-        launchLatch = hardwareMap.get(Servo.class,"l");
+        outakeLatch = hardwareMap.get(Servo.class, "o");
+        flipper = hardwareMap.get(Servo.class, "f");
+        launchLatch = hardwareMap.get(Servo.class, "l");
         intakeServoL = hardwareMap.get(Servo.class, "isl");
         intakeServoR = hardwareMap.get(Servo.class, "isr");
-        dropServo = hardwareMap.get(Servo.class,"ds");
+        dropServo = hardwareMap.get(Servo.class, "ds");
 //        ppp = hardwareMap.get(Servo.class, "p");
-        grabyL = hardwareMap.get(Servo.class,"gl");
-        grabyR = hardwareMap.get(Servo.class,"gr");
-        leftGreen = hardwareMap.get(DigitalChannel.class,"lg");
-        leftRed = hardwareMap.get(DigitalChannel.class,"lr");
-        rightGreen = hardwareMap.get(DigitalChannel.class,"rg");
-        rightRed = hardwareMap.get(DigitalChannel.class,"rr");
+        grabyL = hardwareMap.get(Servo.class, "gl");
+        grabyR = hardwareMap.get(Servo.class, "gr");
+        leftGreen = hardwareMap.get(DigitalChannel.class, "lg");
+        leftRed = hardwareMap.get(DigitalChannel.class, "lr");
+        rightGreen = hardwareMap.get(DigitalChannel.class, "rg");
+        rightRed = hardwareMap.get(DigitalChannel.class, "rr");
 
 
 //        boardSensorL = hardwareMap.get(Rev2mDistanceSensor.class,"bsl");
-        outtakeSensor = hardwareMap.get(RevColorSensorV3.class,"bs");
+        outtakeSensor = hardwareMap.get(RevColorSensorV3.class, "bs");
 //        intakeSensor = hardwareMap.get(Rev2mDistanceSensor.class, "is");
 //        outtakeSensor = hardwareMap.get(RevColorSensorV3.class, "os");
 
@@ -298,7 +298,12 @@ public final class MecanumDrive {
                 t = Actions.now() - beginTs;
             }
 
-            if (t >= timeTrajectory.duration) {
+            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
+
+            PoseVelocity2d robotVelRobot = updatePoseEstimate();
+            Pose2d error = txWorldTarget.value().minusExp(pose);
+
+            if (t >= timeTrajectory.duration && error.position.norm() < 2) {
                 frontLeft.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);
@@ -307,9 +312,6 @@ public final class MecanumDrive {
                 return false;
             }
 
-            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
-
-            PoseVelocity2d robotVelRobot = updatePoseEstimate();
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
                     PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
@@ -332,7 +334,6 @@ public final class MecanumDrive {
             p.put("y", pose.position.y);
             p.put("heading (deg)", Math.toDegrees(pose.heading.log()));
 
-            Pose2d error = txWorldTarget.value().minusExp(pose);
             p.put("xError", error.position.x);
             p.put("yError", error.position.y);
             p.put("headingError (deg)", Math.toDegrees(error.heading.log()));
