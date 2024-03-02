@@ -52,7 +52,7 @@ public class DriveCodeCommon extends LinearOpMode {
     private final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     public static int DESIRED_TAG_ID = 5;     // Choose the tag you want to approach or set to -1 for ANY tag.
     public static int DESIRED_TAG_ID2 = 2;     // Choose the tag you want to approach or set to -1 for ANY tag.
-    public static double grabyl_in = 0.4;
+    public static double grabyl_in = 0.41;
     public static double grabyl_out = 1;
     public static double grabyr_in = 0.9;
     public static double grabyr_out = 0;
@@ -67,12 +67,12 @@ public class DriveCodeCommon extends LinearOpMode {
     double strafe = 0;        // Desired strafe power/speed (-1 to +1)
     double turn = 0;        // Desired turning power/speed (-1 to +1)
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    public static double flipperscore = 0.28;
-    public static double flipperintake = 0.9;
+    public static double flipperscore = 0.46;
+    public static double flipperintake = 0.98;
     public static double flipperstutter = 0.15;
-    public static double flipperadjust = 0;
-    public static double planeClosed = 0.05;
-    public static double planeOpen = 0.5;
+    public static double flipperadjust = 0.3;
+    public static double planeClosed = 0.44;
+    public static double planeOpen = 0.30;
 
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     double intakeTimeStamp = 0;
