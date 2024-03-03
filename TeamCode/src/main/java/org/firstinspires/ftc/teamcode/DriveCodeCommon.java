@@ -71,8 +71,8 @@ public class DriveCodeCommon extends LinearOpMode {
     public static double flipperintake = 0.98;
     public static double flipperstutter = 0.15;
     public static double flipperadjust = 0.3;
-    public static double planeClosed = 0.44;
-    public static double planeOpen = 0.30;
+    public static double planeClosed = 0.42;
+    public static double planeOpen = 0.25;
 
     ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     double intakeTimeStamp = 0;
