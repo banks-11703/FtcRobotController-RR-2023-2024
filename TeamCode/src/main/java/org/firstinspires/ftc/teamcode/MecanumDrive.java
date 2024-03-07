@@ -305,7 +305,7 @@ public final class MecanumDrive {
 
             if ((t >= timeTrajectory.duration && error.position.norm() < 2
                     && robotVelRobot.linearVel.norm() < 0.5)
-                    || t >= timeTrajectory.duration + 1) {
+                    || t >= timeTrajectory.duration + 2) {
                 frontLeft.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);

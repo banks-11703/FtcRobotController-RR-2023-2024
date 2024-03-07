@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(preselectTeleOp="DriveCode")
+@Autonomous/*(preselectTeleOp="DriveCode")*///TODO uncomment
 public class AutoCodeUpdated extends AutoCodeCommonUpdated {
 
     @Override
