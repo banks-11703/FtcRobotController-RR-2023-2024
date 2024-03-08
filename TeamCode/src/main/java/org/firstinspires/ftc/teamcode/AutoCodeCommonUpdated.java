@@ -5,10 +5,20 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
+import com.acmerobotics.roadrunner.Arclength;
+import com.acmerobotics.roadrunner.MinMax;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Pose2dDual;
+import com.acmerobotics.roadrunner.PosePath;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Twist2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -21,6 +31,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous
@@ -141,6 +152,13 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
 
     Vector2d parkClose;
     Vector2d parkFar;
+
+    VelConstraint slowSpeed = new MinVelConstraint(Arrays.asList(
+            new TranslationalVelConstraint(20.0),
+            new AngularVelConstraint(Math.PI / 2)
+    ));
+
+    AccelConstraint slowAccel = new ProfileAccelConstraint(-10.0, 25.0);
 
 
     @Override
@@ -393,7 +411,7 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                 drive.updatePoseEstimate();
                 intakeStack("frontStage", drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .afterDisp(10, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                        .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
                         .splineToSplineHeading(new Pose2d(-40, 59, Math.toRadians(-3)), Math.toRadians(-3))
                         .splineToSplineHeading(new Pose2d(12, 59, Math.toRadians(-3)), Math.toRadians(-3))
@@ -453,11 +471,11 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
                         .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
-                        .splineToSplineHeading(new Pose2d(-40, 59, Math.toRadians(-3)), Math.toRadians(-3))
-                        .splineToSplineHeading(new Pose2d(12, 59, Math.toRadians(-3)), Math.toRadians(-3))
+                        .splineToSplineHeading(new Pose2d(-40, 60, Math.toRadians(-3)), Math.toRadians(-3))
+                        .splineToSplineHeading(new Pose2d(12, 58, Math.toRadians(-3)), Math.toRadians(-3))
                         .waitSeconds(scoreDelay)
                         .splineToSplineHeading(new Pose2d(24, 52, -Math.PI / 6), -Math.PI / 6)
-                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-8, -5)), Math.toRadians(-3)), 0)
+                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-8, -3)), Math.toRadians(-3)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -487,10 +505,12 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
         } else {//Right
             Actions.runBlocking(drive.actionBuilder(drive.pose)
                     .setReversed(true)
-                    .strafeToLinearHeading(finalSpikePos.plus(new Vector2d(-11.5, -3)), Math.PI / 2)
+                    .strafeToLinearHeading(drive.pose.position.plus(new Vector2d(0, -1)), Math.PI / 2)
+                    .splineToLinearHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-11.5, 2)), Math.PI / 2), Math.PI / 2, slowSpeed)
                     .afterDisp(0, purplePixelTraj(grabyl_out, grabyr_out, drive))
-                    .afterDisp(1, intakeTraj(0, drive))//TODO add a backwards trajectory to avoid nudging the purple pixel
-                    .strafeToLinearHeading(finalSpikePos.plus(new Vector2d(-11.5, 5)), Math.PI / 2)
+                    .afterDisp(1, intakeTraj(0, drive))
+                    .setReversed(false)
+                    .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-4, 7)), 0), 0, slowSpeed, slowAccel)
                     .build()
             );
             drive.updatePoseEstimate();
@@ -499,21 +519,21 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
             }
             if (score) {
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(5, 3)), Math.toRadians(0))
+                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(5, 3.5)), Math.toRadians(0))
                         .afterDisp(0, purplePixelTraj(grabyMid, grabyMid, drive))
-                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(-1, 3)), stackPosBlueClose.heading.plus(Math.toRadians(5)))
+                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(-1, 3.5)), stackPosBlueClose.heading.plus(Math.toRadians(5)))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 intakeStack("frontStage", drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .afterDisp(10, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                        .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
-                        .splineToSplineHeading(new Pose2d(-40, 59, Math.toRadians(-3)), Math.toRadians(-3))
-                        .splineToSplineHeading(new Pose2d(12, 59, Math.toRadians(-3)), Math.toRadians(-3))
+                        .splineToSplineHeading(new Pose2d(-40, 58, Math.toRadians(-6)), Math.toRadians(-6))
+                        .splineToSplineHeading(new Pose2d(12, 58, Math.toRadians(-6)), Math.toRadians(-6))
                         .waitSeconds(scoreDelay)
                         .splineToSplineHeading(new Pose2d(24, 52, -Math.PI / 6), -Math.PI / 6)
-                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-9, -4)), Math.toRadians(0)), 0)
+                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-8, -6)), Math.toRadians(-1)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -610,43 +630,36 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
         purplePixel(false, drive);
         waitEx(500);
         drive.intake.setPower(0.4);
-        if (randomizationResult == -1) {//right
+        if (randomizationResult == -1) {//Right
             Actions.runBlocking(drive.actionBuilder(drive.pose)
                     .setReversed(true)
-                    .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(1, 5.5)), Math.PI), 0)
+                    .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(5, 5.5)), Math.PI), 0)
+                    .afterTime(0, intakeTraj(0, drive))
+                    .afterTime(0, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                    .setReversed(false)
+                    .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(0, 5.5)), Math.PI), Math.PI)
                     .build()
             );
             drive.updatePoseEstimate();
-            drive.intake.setPower(0);
-            purplePixel(true, drive);
             if (finishEarly) {
                 waitEx(1000000);
             }
             if (score) {
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(5, 0)), 0)
-                        .waitSeconds(0.5)
-                        .build()
-                );
-                purplePixel(grabyMid, grabyMid, drive);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position, stackPosRedClose.heading)
+                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(9, -2)), 0)
+                        .afterDisp(0, purplePixelTraj(grabyMid, grabyMid, drive))
+                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(2.5, -2)), Math.toRadians(-10))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 intakeStack("frontStage", drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .afterDisp(10, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                        .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
-                        .splineToSplineHeading(new Pose2d(-40, -60, Math.toRadians(0)), Math.toRadians(0))
-                        .splineToSplineHeading(new Pose2d(12, -60, Math.toRadians(0)), Math.toRadians(0))
-                        .build()
-                );
-                drive.updatePoseEstimate();
-                waitEx(scoreDelay * 1000);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .splineToSplineHeading(new Pose2d(24, -52, Math.PI / 6), Math.PI / 6)
-                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-8, 0)), Math.toRadians(0)), 0)
+                        .splineToSplineHeading(new Pose2d(-40, -60, Math.toRadians(-3)), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(12, -63, Math.toRadians(-3)), Math.toRadians(0))
+                        .waitSeconds(scoreDelay)
+                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-6.5, -16)), Math.toRadians(-7)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -658,7 +671,7 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                 drive.intake.setPower(0);
                 scoreBackdrop(150, drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(finalBackdropPos.position.plus(new Vector2d(-20, 0)), 0)
+                        .strafeToLinearHeading(finalBackdropPos.position.plus(new Vector2d(-20, -15)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -678,13 +691,10 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
             Actions.runBlocking(drive.actionBuilder(drive.pose)
                     .setReversed(true)
                     .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(0, -1.5)), -Math.PI / 2), -Math.PI / 2)
-                    .build()
-            );
-            drive.updatePoseEstimate();
-            drive.intake.setPower(0);
-            purplePixel(true, drive);
-            Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(drive.pose.position.plus(new Vector2d(0, -5)), drive.pose.heading)
+                    .afterTime(0, intakeTraj(0, drive))
+                    .afterTime(0, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                    .setReversed(false)
+                    .strafeToLinearHeading(finalSpikePos.plus(new Vector2d(0, -5)), drive.pose.heading)
                     .build()
             );
             drive.updatePoseEstimate();
@@ -693,29 +703,21 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
             }
             if (score) {
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(5, -3.5)), 0)
-                        .waitSeconds(0.5)
-                        .build()
-                );
-                purplePixel(grabyMid, grabyMid, drive);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(0, -3.5)), stackPosRedClose.heading)
+                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(9, -2)), 0)
+                        .afterDisp(0, purplePixelTraj(grabyMid, grabyMid, drive))
+                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(2, -3)), Math.toRadians(-7))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 intakeStack("frontStage", drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .afterDisp(10, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                        .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
-                        .splineToSplineHeading(new Pose2d(-40, -59, Math.toRadians(0)), Math.toRadians(0))
-                        .splineToSplineHeading(new Pose2d(12, -59, Math.toRadians(0)), Math.toRadians(0))
-                        .build()
-                );
-                drive.updatePoseEstimate();
-                waitEx(scoreDelay * 1000);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .splineToSplineHeading(new Pose2d(-40, -60, Math.toRadians(-3)), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(12, -61, Math.toRadians(-3)), Math.toRadians(0))
+                        .waitSeconds(scoreDelay)
                         .splineToSplineHeading(new Pose2d(24, -52, Math.PI / 6), Math.PI / 6)
-                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-9, 5)), Math.toRadians(0)), 0)
+                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-6, -3)), Math.toRadians(0)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -742,18 +744,15 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                 drive.updatePoseEstimate();
                 park(2, drive);
             }
-        } else {//Right
+        } else {//Left
             Actions.runBlocking(drive.actionBuilder(drive.pose)
                     .setReversed(true)
-                    .strafeToLinearHeading(finalSpikePos.plus(new Vector2d(-11, -5)), -Math.PI / 2)
-                    .strafeToLinearHeading(finalSpikePos.plus(new Vector2d(-11, 0)), -Math.PI / 2)
-                    .build()
-            );
-            drive.updatePoseEstimate();
-            drive.intake.setPower(0);
-            purplePixel(true, drive);
-            Actions.runBlocking(drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(drive.pose.position.plus(new Vector2d(0, -5)), drive.pose.heading)
+                    .strafeToLinearHeading(drive.pose.position.plus(new Vector2d(0, 1)), -Math.PI / 2)
+                    .splineToLinearHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-11.5, -2)), -Math.PI / 2), -Math.PI / 2, slowSpeed)
+                    .afterDisp(0, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                    .afterDisp(1, intakeTraj(0, drive))
+                    .setReversed(false)
+                    .splineToSplineHeading(new Pose2d(finalSpikePos.plus(new Vector2d(-4, -7)), 0), 0, slowSpeed, slowAccel)
                     .build()
             );
             drive.updatePoseEstimate();
@@ -762,29 +761,21 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
             }
             if (score) {
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(5, -2)), Math.toRadians(0))
-                        .waitSeconds(0.5)
-                        .build()
-                );
-                purplePixel(grabyMid, grabyMid, drive);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(-1, -2)), stackPosRedClose.heading.plus(Math.toRadians(-2)))
+                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(5, -3.5)), Math.toRadians(0))
+                        .afterDisp(0, purplePixelTraj(grabyMid, grabyMid, drive))
+                        .strafeToLinearHeading(stackPosBlueClose.position.plus(new Vector2d(-1, -3.5)), stackPosBlueClose.heading.plus(Math.toRadians(-5)))
                         .build()
                 );
                 drive.updatePoseEstimate();
                 intakeStack("frontStage", drive);
                 Actions.runBlocking(drive.actionBuilder(drive.pose)
-                        .afterDisp(10, purplePixelTraj(grabyl_out, grabyr_out, drive))
+                        .afterDisp(5, purplePixelTraj(grabyl_out, grabyr_out, drive))
                         .setReversed(false)
-                        .splineToSplineHeading(new Pose2d(-40, -60, Math.toRadians(0)), Math.toRadians(0))
-                        .splineToSplineHeading(new Pose2d(12, -60, Math.toRadians(0)), Math.toRadians(0))
-                        .build()
-                );
-                drive.updatePoseEstimate();
-                waitEx(scoreDelay * 1000);
-                Actions.runBlocking(drive.actionBuilder(drive.pose)
+                        .splineToSplineHeading(new Pose2d(-40, -58, Math.toRadians(0)), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(12, -58, Math.toRadians(0)), Math.toRadians(0))
+                        .waitSeconds(scoreDelay)
                         .splineToSplineHeading(new Pose2d(24, -52, Math.PI / 6), Math.PI / 6)
-                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-9, 4)), Math.toRadians(0)), 0)
+                        .splineToSplineHeading(new Pose2d(finalBackdropPos.position.plus(new Vector2d(-8, 6)), Math.toRadians(0)), 0)
                         .build()
                 );
                 drive.updatePoseEstimate();
@@ -901,8 +892,8 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                         );
                     } else if (Side() == 0 && randomizationResult == 1) {//right
                         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -2)), 0), 0)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -2)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -7)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -7)), 0), 0)
                                 .build()
                         );
                     } else {//Backstage
@@ -951,28 +942,28 @@ public class AutoCodeCommonUpdated extends LinearOpMode {
                 break;
             case 2:
                 if (Park() == 0) {//Far
-                    if (Side() == 0 && randomizationResult == -1) {//FrontStage left
+                    if (Side() == 0 && randomizationResult == -1) {//FrontStage Right
                         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, 0)), 0), 0)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, 0)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -16)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -16)), 0), 0)
                                 .build()
                         );
                     } else if (Side() == 0 && randomizationResult == 0) {//center
                         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, 4)), 0), 0)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, 4)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -4)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -4)), 0), 0)
                                 .build()
                         );
-                    } else if (Side() == 0 && randomizationResult == 1) {//right
+                    } else if (Side() == 0 && randomizationResult == 1) {//Left
                         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, 2)), 0), 0)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, 2)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -7)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -7)), 0), 0)
                                 .build()
                         );
                     } else {//Backstage
                         Actions.runBlocking(drive.actionBuilder(drive.pose)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, -1)), 0), 0)
-                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, -1)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(-12, 1)), 0), 0)
+                                .splineToSplineHeading(new Pose2d(parkFar.plus(new Vector2d(0, 1)), 0), 0)
                                 .build()
                         );
                     }
