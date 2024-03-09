@@ -67,10 +67,10 @@ public class DriveCodeCommon extends LinearOpMode {
     double strafe = 0;        // Desired strafe power/speed (-1 to +1)
     double turn = 0;        // Desired turning power/speed (-1 to +1)
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-    public static double flipperscore = 0.46;
+    public static double flipperscore = 0.51;
     public static double flipperintake = 0.98;
     public static double flipperstutter = 0.15;
-    public static double flipperadjust = 0.3;
+    public static double flipperadjust = 0.38;
     public static double planeClosed = 0.42;
     public static double planeOpen = 0.25;
 
