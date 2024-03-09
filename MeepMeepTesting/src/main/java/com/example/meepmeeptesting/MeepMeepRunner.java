@@ -40,7 +40,21 @@ public class MeepMeepRunner {
 
         MeepMeep meepMeep = new MeepMeep(600);
 
-        RoadRunnerBotEntity blueBackBot = new DefaultBotBuilder(meepMeep)
+        RoadRunnerBotEntity blueBackBot1 = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 13)
+                .setDimensions(15, 16)
+                .setColorScheme(new ColorSchemeRedDark())
+                .setStartPose(startBlueBack)
+                .build();
+        RoadRunnerBotEntity blueBackBot2 = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 13)
+                .setDimensions(15, 16)
+                .setColorScheme(new ColorSchemeRedDark())
+                .setStartPose(startBlueBack)
+                .build();
+        RoadRunnerBotEntity blueBackBot3 = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(50, 50, Math.toRadians(180), Math.toRadians(180), 13)
                 .setDimensions(15, 16)
@@ -130,10 +144,10 @@ public class MeepMeepRunner {
 
         redFrontBot3.runAction(redFrontBot3.getDrive().actionBuilder(redFrontBot3.getPose())
                 .setReversed(true)
-                .splineToSplineHeading(new Pose2d(spikePosRedFront.plus(new Vector2d(0, 7)), -Math.PI/2), -Math.PI/2)
+                .splineToSplineHeading(new Pose2d(spikePosRedFront.plus(new Vector2d(0, 7)), -Math.PI / 2), -Math.PI / 2)
                 .waitSeconds(2.2)
                 .setReversed(false)
-                .splineToSplineHeading(new Pose2d(spikePosRedFront.plus(new Vector2d(0, 5.5)), -Math.PI/2), -Math.PI/2)
+                .splineToSplineHeading(new Pose2d(spikePosRedFront.plus(new Vector2d(0, 5.5)), -Math.PI / 2), -Math.PI / 2)
                 .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(9, 0)), 0)
                 .strafeToLinearHeading(stackPosRedClose.position.plus(new Vector2d(2.5, 0)), Math.toRadians(-7))
                 .waitSeconds(1)
@@ -148,10 +162,51 @@ public class MeepMeepRunner {
                 .build()
         );
 
+        blueBackBot1.runAction(blueBackBot1.getDrive().actionBuilder(blueBackBot1.getPose())
+                .strafeToLinearHeading(new Vector2d(startBlueBack.position.x, startBlueBack.position.y - 5), startBlueBack.heading)
+                .splineToSplineHeading(new Pose2d(backdropPos1.position.plus(new Vector2d(-7.5, 1.5)), Math.toRadians(-2)), 0)
+                .waitSeconds(1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(spikePosBlueBack.plus(new Vector2d(9.5, -2)), 0), -Math.PI)
+                .waitSeconds(1)
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue.plus(new Vector2d(-12, 0)), 0), 0)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue, 0), 0)
+                .build()
+        );
+
+        blueBackBot2.runAction(blueBackBot2.getDrive().actionBuilder(blueBackBot2.getPose())
+                .strafeToLinearHeading(new Vector2d(startBlueBack.position.x, startBlueBack.position.y - 5), startBlueBack.heading)
+                .splineToSplineHeading(new Pose2d(backdropPos2.position.plus(new Vector2d(-7.5, 1.5)), Math.toRadians(-2)), 0)
+                .waitSeconds(1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(spikePosBlueBack.plus(new Vector2d(0, -7)), 0), -Math.PI)
+                .waitSeconds(1)
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue.plus(new Vector2d(-12, 0)), 0), 0)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue, 0), 0)
+                .build()
+        );
+
+        blueBackBot3.runAction(blueBackBot3.getDrive().actionBuilder(blueBackBot3.getPose())
+                .strafeToLinearHeading(new Vector2d(startBlueBack.position.x, startBlueBack.position.y - 5), startBlueBack.heading)
+                .splineToSplineHeading(new Pose2d(backdropPos3.position.plus(new Vector2d(-7.5, 1.5)), Math.toRadians(-2)), 0)
+                .waitSeconds(1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(spikePosBlueBack.plus(new Vector2d(-11.5, 4)), 0), -Math.PI)
+                .waitSeconds(1)
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue.plus(new Vector2d(-12, 0)), 0), 0)
+                .splineToSplineHeading(new Pose2d(parkCloseBlue, 0), 0)
+                .build()
+        );
+
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(blueBackBot)
+                .addEntity(blueBackBot1)
+                .addEntity(blueBackBot2)
+                .addEntity(blueBackBot3)
 //                .addEntity(blueFrontBot)
 //                .addEntity(redBackBot)
                 .addEntity(redFrontBot1)
