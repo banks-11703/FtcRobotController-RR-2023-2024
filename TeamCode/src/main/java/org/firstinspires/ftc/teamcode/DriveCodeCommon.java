@@ -184,8 +184,6 @@ public class DriveCodeCommon extends LinearOpMode {
 //        drive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        drive.planeLauncher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        drive.planeLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
         waitForStart();
     }
 
@@ -516,7 +514,21 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.addData("pixels in outtake", outtake());
         telemetry.update();
     }
-
+    public void judging(MecanumDrive drive){
+        if (gamepad1.a){
+            drive.launchLatch.setPosition(planeOpen);
+        }
+        if (gamepad1.b){
+            drive.flipper.setPosition(flipperscore);
+        }else if(gamepad1.x){
+            drive.flipper.setPosition(flipperintake);
+        }
+        if (gamepad1.y){
+            drive.intake.setPower(-1);
+        }else{
+            drive.intake.setPower(0);
+        }
+    }
     public void lights(MecanumDrive drive) {
 
         if (outtake() == Pixels.two) {
