@@ -515,19 +515,13 @@ public class DriveCodeCommon extends LinearOpMode {
         telemetry.update();
     }
     public void judging(MecanumDrive drive){
-        if (gamepad1.a){
+        if (gamepad1.dpad_left){
             drive.launchLatch.setPosition(planeOpen);
+        } else if(gamepad1.dpad_right){
+            drive.launchLatch.setPosition(planeClosed);
         }
-        if (gamepad1.b){
             drive.flipper.setPosition(flipperscore);
-        }else if(gamepad1.x){
-            drive.flipper.setPosition(flipperintake);
-        }
-        if (gamepad1.y){
-            drive.intake.setPower(-1);
-        }else{
-            drive.intake.setPower(0);
-        }
+
     }
     public void lights(MecanumDrive drive) {
 
