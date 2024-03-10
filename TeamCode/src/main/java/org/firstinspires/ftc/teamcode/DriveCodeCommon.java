@@ -68,7 +68,7 @@ public class DriveCodeCommon extends LinearOpMode {
     double turn = 0;        // Desired turning power/speed (-1 to +1)
     ElapsedTime timeSinceSeen = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     public static double flipperscore = 0.51;
-    public static double flipperintake = 0.98;
+    public static double flipperintake = 1;
     public static double flipperstutter = 0.15;
     public static double flipperadjust = 0.38;
     public static double planeClosed = 0.42;
@@ -175,6 +175,10 @@ public class DriveCodeCommon extends LinearOpMode {
         drive.leftGreen.setMode(DigitalChannel.Mode.OUTPUT);
         drive.rightRed.setMode(DigitalChannel.Mode.OUTPUT);
         drive.rightGreen.setMode(DigitalChannel.Mode.OUTPUT);
+        drive.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drive.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drive.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drive.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //        drive.leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        drive.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
